@@ -1,0 +1,107 @@
+═══════════════════════════════════════════════════════════════
+  GITHUB SETUP - QUICK CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+BEFORE YOU START:
+─────────────────────────────────────────────────────────────
+[ ] Git installed (check: git --version)
+[ ] GitHub account created (https://github.com)
+[ ] Terminal/Command Prompt open
+
+
+STEP-BY-STEP COMMANDS:
+─────────────────────────────────────────────────────────────
+
+[ ] 1. Configure Git (first time only):
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
+
+[ ] 2. Navigate to project:
+    cd student-academic-system
+
+[ ] 3. Initialize Git:
+    git init
+
+[ ] 4. Add all files:
+    git add .
+
+[ ] 5. First commit:
+    git commit -m "Initial commit: Student Academic Performance System"
+
+[ ] 6. Create GitHub repository:
+    - Go to: https://github.com/new
+    - Name: student-academic-system
+    - Description: AI-powered student performance prediction system
+    - Public or Private (your choice)
+    - DO NOT check "Initialize with README"
+    - Click "Create repository"
+
+[ ] 7. Get Personal Access Token:
+    - GitHub → Settings → Developer settings
+    - Personal access tokens → Tokens (classic)
+    - Generate new token (classic)
+    - Name: "Student Project"
+    - Check: "repo"
+    - Generate and COPY token
+
+[ ] 8. Connect to GitHub:
+    git remote add origin https://github.com/YOUR_USERNAME/student-academic-system.git
+    git branch -M main
+    git push -u origin main
+    
+    (Replace YOUR_USERNAME with your GitHub username!)
+
+[ ] 9. Enter credentials when prompted:
+    Username: [your GitHub username]
+    Password: [paste your Personal Access Token]
+
+
+VERIFY SUCCESS:
+─────────────────────────────────────────────────────────────
+[ ] Visit: https://github.com/YOUR_USERNAME/student-academic-system
+[ ] See all your files on GitHub
+[ ] README.md displays nicely
+
+
+OPTIONAL - ADD SCREENSHOTS:
+─────────────────────────────────────────────────────────────
+[ ] Take screenshots of your app
+[ ] Save in screenshots/ folder
+[ ] Run:
+    git add screenshots/
+    git commit -m "Add screenshots"
+    git push
+
+
+FUTURE UPDATES:
+─────────────────────────────────────────────────────────────
+When you make changes:
+
+git add .
+git commit -m "Description of changes"
+git push
+
+
+TROUBLESHOOTING:
+─────────────────────────────────────────────────────────────
+Problem: "git: command not found"
+Solution: Install Git from https://git-scm.com
+
+Problem: "Permission denied"
+Solution: Use Personal Access Token, not password
+
+Problem: "Repository not found"
+Solution: Check username in URL is correct
+
+Problem: "Failed to push"
+Solution: Run "git pull origin main" first
+
+
+YOUR PROJECT URL:
+─────────────────────────────────────────────────────────────
+https://github.com/YOUR_USERNAME/student-academic-system
+
+
+═══════════════════════════════════════════════════════════════
+  DONE! Share your GitHub link with the world! 🎉
+═══════════════════════════════════════════════════════════════

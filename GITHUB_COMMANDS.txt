@@ -1,0 +1,103 @@
+═══════════════════════════════════════════════════════════════
+  COPY-PASTE COMMANDS FOR GITHUB SETUP
+═══════════════════════════════════════════════════════════════
+
+📌 STEP 1: Configure Git (First Time Only)
+───────────────────────────────────────────────────────────────
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+⚠️ REPLACE "Your Name" and "your.email@example.com" with YOUR info!
+
+
+📌 STEP 2: Navigate to Project Folder
+───────────────────────────────────────────────────────────────
+cd student-academic-system
+
+
+📌 STEP 3: Initialize Git
+───────────────────────────────────────────────────────────────
+git init
+
+
+📌 STEP 4: Add All Files
+───────────────────────────────────────────────────────────────
+git add .
+
+
+📌 STEP 5: First Commit
+───────────────────────────────────────────────────────────────
+git commit -m "Initial commit: Student Academic Performance System"
+
+
+📌 STEP 6: Create GitHub Repository
+───────────────────────────────────────────────────────────────
+1. Go to: https://github.com/new
+2. Repository name: student-academic-system
+3. Description: AI-powered student performance prediction system
+4. Choose Public or Private
+5. DO NOT check "Initialize with README"
+6. Click "Create repository"
+
+
+📌 STEP 7: Connect to GitHub
+───────────────────────────────────────────────────────────────
+git remote add origin https://github.com/YOUR_USERNAME/student-academic-system.git
+git branch -M main
+git push -u origin main
+
+⚠️ REPLACE "YOUR_USERNAME" with your actual GitHub username!
+
+
+📌 STEP 8: Authentication
+───────────────────────────────────────────────────────────────
+When prompted for password, use Personal Access Token:
+
+How to get token:
+1. GitHub → Settings → Developer settings
+2. Personal access tokens → Tokens (classic)
+3. Generate new token (classic)
+4. Name: "Student Project"
+5. Check: "repo" (full control)
+6. Generate and COPY the token
+7. Use token as password when pushing
+
+
+═══════════════════════════════════════════════════════════════
+  FUTURE UPDATES (After Initial Push)
+═══════════════════════════════════════════════════════════════
+
+When you make changes:
+
+git add .
+git commit -m "Description of changes"
+git push
+
+
+═══════════════════════════════════════════════════════════════
+  USEFUL COMMANDS
+═══════════════════════════════════════════════════════════════
+
+Check status:
+git status
+
+View history:
+git log --oneline
+
+Check remote:
+git remote -v
+
+Pull updates:
+git pull origin main
+
+
+═══════════════════════════════════════════════════════════════
+  YOUR REPOSITORY URL (after creation)
+═══════════════════════════════════════════════════════════════
+
+https://github.com/YOUR_USERNAME/student-academic-system
+
+Share this link with others to show your project!
+
+
+═══════════════════════════════════════════════════════════════

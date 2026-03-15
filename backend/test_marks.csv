@@ -1,0 +1,4 @@
+student_id,subject,exam_type,score,max_score,exam_date
+1,Physics,midterm,88,100,2026-01-25
+1,Chemistry,midterm,92,100,2026-01-26
+1,English,midterm,85,100,2026-01-27
