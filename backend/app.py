@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from config import Config
 from models import db
+import os
 
 # Initialize cache
 cache = Cache()
@@ -16,9 +17,22 @@ def create_app(config_class=Config):
     app.config['CACHE_TYPE'] = 'SimpleCache'  # Use 'RedisCache' for production
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
     
+    # CORS Configuration - Allow multiple origins
+    cors_origins = [
+        'http://localhost:3000',           # Local development
+        'http://localhost:5000',           # Local backend
+        'https://*.vercel.app',            # Vercel deployments
+    ]
+    
+    # Add production frontend URL if set
+    production_frontend = os.environ.get('PRODUCTION_FRONTEND_URL')
+    if production_frontend:
+        cors_origins.append(production_frontend)
+    
+    CORS(app, origins=cors_origins, supports_credentials=True)
+    
     # Initialize extensions
     db.init_app(app)
-    CORS(app)
     jwt = JWTManager(app)
     cache.init_app(app)
     
