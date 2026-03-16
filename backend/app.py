@@ -19,12 +19,13 @@ def create_app(config_class=Config):
     
     # CORS Configuration - Allow multiple origins
     cors_origins = [
-        'http://localhost:3000',           # Local development
-        'http://localhost:5000',           # Local backend
-        'https://*.vercel.app',            # Vercel deployments
+        'http://localhost:3000',                                    # Local development
+        'http://localhost:5000',                                    # Local backend
+        'https://student-performance-system-kohl.vercel.app',      # Your Vercel frontend
+        'https://*.vercel.app',                                     # Other Vercel deployments
     ]
     
-    # Add production frontend URL if set
+    # Add production frontend URL if set via environment variable
     production_frontend = os.environ.get('PRODUCTION_FRONTEND_URL')
     if production_frontend:
         cors_origins.append(production_frontend)
