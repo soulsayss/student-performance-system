@@ -65,10 +65,10 @@ def create_app(config_class=Config):
                 admin = User(
                     name='Administrator',
                     email='admin@school.edu',
-                    password='Admin@123',
                     role='admin',
                     is_active=True
                 )
+                admin.set_password('Admin@123')
                 db.session.add(admin)
                 db.session.commit()
                 print("✓ Admin user created successfully!")
