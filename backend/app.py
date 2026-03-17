@@ -22,7 +22,6 @@ def create_app(config_class=Config):
         'http://localhost:3000',                                    # Local development
         'http://localhost:5000',                                    # Local backend
         'https://student-performance-system-kohl.vercel.app',      # Your Vercel frontend
-        'https://*.vercel.app',                                     # Other Vercel deployments
     ]
     
     # Add production frontend URL if set via environment variable
