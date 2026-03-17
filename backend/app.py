@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from config import Config
-from models import db
+from models import db, User
 import os
 
 # Initialize cache
@@ -52,10 +52,33 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(ml_bp, url_prefix='/api/ml')
     
-    # Create database tables
+    # Create database tables and initialize admin user
     with app.app_context():
         db.create_all()
         print("Database tables created successfully!")
+        
+        # Auto-initialize admin user on first deployment
+        try:
+            admin = User.query.filter_by(email='admin@school.edu').first()
+            if not admin:
+                print("Creating initial admin user...")
+                admin = User(
+                    name='Administrator',
+                    email='admin@school.edu',
+                    password='Admin@123',
+                    role='admin',
+                    is_active=True
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print("✓ Admin user created successfully!")
+                print("  Email: admin@school.edu")
+                print("  Password: Admin@123")
+            else:
+                print("✓ Admin user already exists")
+        except Exception as e:
+            print(f"Note: Could not auto-create admin user: {str(e)}")
+            print("You can create it manually using init_db.py")
     
     @app.route('/')
     def index():
