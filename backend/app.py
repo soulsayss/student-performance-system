@@ -66,8 +66,8 @@ def create_app(config_class=Config):
                 print("="*60)
                 
                 # Import and run seed script
-                from utils.seed_database import main as seed_main
-                seed_main()
+                from utils.seed_database import seed_all_data
+                seed_all_data()
                 
                 print("\n✅ Auto-seeding completed successfully!")
             else:

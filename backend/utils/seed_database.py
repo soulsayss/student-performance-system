@@ -717,12 +717,67 @@ def create_career_suggestions(students):
     
     print(f"  Created {suggestions_count} career suggestions")
 
-def main():
-    """Main seeding function"""
+def seed_all_data():
+    """Seed all data into the database (called from app.py)"""
     print("\n" + "="*60)
     print("STUDENT ACADEMIC PERFORMANCE SYSTEM - DATABASE SEEDING")
     print("="*60 + "\n")
     
+    # Create data
+    admin = create_admin()
+    teachers = create_teachers()
+    parents = create_parents()
+    students = create_students(parents)
+    
+    print("\nCommitting users to database...")
+    db.session.commit()
+    print("✅ Users created\n")
+    
+    # Create related data
+    create_attendance(students, teachers)
+    create_marks(students)
+    create_assignments(students)
+    create_resources()
+    create_alerts(students)
+    create_achievements(students)
+    create_predictions(students)
+    create_recommendations(students)
+    create_career_suggestions(students)
+    
+    print("\nCommitting all data to database...")
+    db.session.commit()
+    
+    print("\n" + "="*60)
+    print("DATABASE SEEDING COMPLETED SUCCESSFULLY!")
+    print("="*60)
+    print(f"\n📊 Summary:")
+    print(f"  • 1 Admin user")
+    print(f"  • 15 Teachers (11 subjects)")
+    print(f"  • 150 Parents")
+    print(f"  • 150 Students (45 high, 75 average, 30 at-risk)")
+    print(f"  • Classes 6-10 (30 students per class, 10 per section)")
+    print(f"  • ~19,500 Attendance records (6 months)")
+    print(f"  • ~9,900 Marks records (6 exams × 11 subjects × 150 students)")
+    print(f"  • ~1,125 Assignments")
+    print(f"  • 66 Learning resources (6 per subject)")
+    print(f"  • ~270 Alerts")
+    print(f"  • ~400 Achievements")
+    print(f"  • 150 Predictions")
+    print(f"  • ~600 Recommendations")
+    print(f"  • ~600 Career suggestions")
+    print(f"  • Total Users: 316 (1 admin + 15 teachers + 150 students + 150 parents)")
+    
+    print(f"\n🔑 Login Credentials:")
+    print(f"  Admin:   admin@school.edu / Admin@123")
+    print(f"  Teacher: rajesh.kumar@school.com / Teacher@123")
+    print(f"  Parent:  parent1@email.com / Parent@123")
+    print(f"  Student: student1@school.com / Student@123")
+    
+    print(f"\n✅ Database ready for use!")
+    print("="*60 + "\n")
+
+def main():
+    """Main seeding function for CLI usage"""
     app = create_app()
     
     with app.app_context():
@@ -733,58 +788,4 @@ def main():
         db.create_all()
         print("✅ Database schema created\n")
         
-        # Create data
-        admin = create_admin()
-        teachers = create_teachers()
-        parents = create_parents()
-        students = create_students(parents)
-        
-        print("\nCommitting users to database...")
-        db.session.commit()
-        print("✅ Users created\n")
-        
-        # Create related data
-        create_attendance(students, teachers)
-        create_marks(students)
-        create_assignments(students)
-        create_resources()
-        create_alerts(students)
-        create_achievements(students)
-        create_predictions(students)
-        create_recommendations(students)
-        create_career_suggestions(students)
-        
-        print("\nCommitting all data to database...")
-        db.session.commit()
-        
-        print("\n" + "="*60)
-        print("DATABASE SEEDING COMPLETED SUCCESSFULLY!")
-        print("="*60)
-        print(f"\n📊 Summary:")
-        print(f"  • 1 Admin user")
-        print(f"  • 15 Teachers (11 subjects)")
-        print(f"  • 150 Parents")
-        print(f"  • 150 Students (45 high, 75 average, 30 at-risk)")
-        print(f"  • Classes 6-10 (30 students per class, 10 per section)")
-        print(f"  • ~19,500 Attendance records (6 months)")
-        print(f"  • ~9,900 Marks records (6 exams × 11 subjects × 150 students)")
-        print(f"  • ~1,125 Assignments")
-        print(f"  • 66 Learning resources (6 per subject)")
-        print(f"  • ~270 Alerts")
-        print(f"  • ~400 Achievements")
-        print(f"  • 150 Predictions")
-        print(f"  • ~600 Recommendations")
-        print(f"  • ~600 Career suggestions")
-        print(f"  • Total Users: 316 (1 admin + 15 teachers + 150 students + 150 parents)")
-        
-        print(f"\n🔑 Login Credentials:")
-        print(f"  Admin:   admin@school.edu / Admin@123")
-        print(f"  Teacher: rajesh.kumar@school.com / Teacher@123")
-        print(f"  Parent:  parent1@email.com / Parent@123")
-        print(f"  Student: student1@school.com / Student@123")
-        
-        print(f"\n✅ Database ready for use!")
-        print("="*60 + "\n")
-
-if __name__ == '__main__':
-    main()
+        seed_all_data()
