@@ -30,9 +30,9 @@ def get_dashboard():
     Returns: class overview, total students, at-risk count
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
