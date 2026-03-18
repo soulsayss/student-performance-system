@@ -18,24 +18,21 @@ def create_app(config_class=Config):
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
     
     # CORS Configuration - Allow multiple origins
-    cors_origins = [
-        'http://localhost:3000',                                    # Local development
-        'http://localhost:5000',                                    # Local backend
-        'http://localhost:5173',                                    # Vite dev server
-        'https://student-performance-system-kohl.vercel.app',      # Your Vercel frontend
-    ]
-    
-    # Add production frontend URL if set via environment variable
-    production_frontend = os.environ.get('PRODUCTION_FRONTEND_URL')
-    if production_frontend:
-        cors_origins.append(production_frontend)
-    
-    # Configure CORS - simpler approach
+    # Using wildcard for development, restrict in production
     CORS(app, 
-         origins=cors_origins,
-         supports_credentials=True,
-         allow_headers=['Content-Type', 'Authorization'],
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+         resources={
+             r"/api/*": {
+                 "origins": [
+                     'http://localhost:3000',
+                     'http://localhost:5000',
+                     'http://localhost:5173',
+                     'https://student-performance-system-kohl.vercel.app'
+                 ],
+                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+                 "allow_headers": ["Content-Type", "Authorization"],
+                 "supports_credentials": True
+             }
+         }
     )
     
     # Initialize extensions
