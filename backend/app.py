@@ -43,7 +43,14 @@ def create_app(config_class=Config):
     @app.after_request
     def after_request(response):
         origin = request.headers.get('Origin')
-        if origin in cors_origins:
+        # Check if origin is in allowed list
+        allowed_origins = [
+            'http://localhost:3000',
+            'http://localhost:5000',
+            'http://localhost:5173',
+            'https://student-performance-system-kohl.vercel.app',
+        ]
+        if origin in allowed_origins:
             response.headers.add('Access-Control-Allow-Origin', origin)
             response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
             response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH')
