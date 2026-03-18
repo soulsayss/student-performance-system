@@ -74,7 +74,7 @@ An AI-powered system to predict student academic performance, identify at-risk s
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/student-academic-system.git
+git clone https://github.com/soulsayss/student-performance-system.git
 cd student-academic-system
 ```
 
@@ -220,10 +220,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**[Your Name]**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+**Rohan Shrivastav**
+- GitHub: [@soulsayss](https://github.com/soulsayss)
+- LinkedIn: [Rohan Shrivastav](https://www.linkedin.com/in/rohan-shrivastav-794a941bb?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
+- Email: shrivastavrohan790@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -233,7 +233,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your.email@example.com or open an issue in the repository.
+For support, email shrivastavrohan790@gmail.com or open an issue in the repository.
 
 ---
 

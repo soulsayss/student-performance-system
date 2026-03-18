@@ -43,15 +43,18 @@ api.interceptors.response.use(
         toast.error('Session expired. Please login again.')
       } else if (error.response.status === 403) {
         toast.error('Access denied')
-      } else {
+      } else if (error.response.status >= 500) {
+        // Only show toast for server errors
         toast.error(message)
       }
+      // Don't show toast for 4xx errors (except 401/403) - let components handle them
     } else if (error.request) {
-      // Request made but no response
-      toast.error('Network error. Please check your connection.')
+      // Request made but no response - likely CORS or network issue
+      // Don't show toast here as it might be a transient error
+      console.error('Network error:', error.message)
     } else {
       // Something else happened
-      toast.error('An unexpected error occurred')
+      console.error('Request error:', error.message)
     }
     
     return Promise.reject(error)
