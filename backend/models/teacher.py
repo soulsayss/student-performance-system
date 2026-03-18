@@ -8,7 +8,8 @@ class Teacher(db.Model):
     employee_id = db.Column(db.String(50), unique=True, nullable=False, index=True)
     subject = db.Column(db.String(100), nullable=False)
     department = db.Column(db.String(100), nullable=True)
-    assigned_class = db.Column(db.String(20), nullable=True)  # e.g., "6", "7", "8"
+    is_class_teacher = db.Column(db.Boolean, default=False)  # True if class teacher
+    assigned_class = db.Column(db.String(20), nullable=True)  # e.g., "8" (for class teachers)
     assigned_section = db.Column(db.String(10), nullable=True)  # e.g., "A"
     
     # Relationships
@@ -22,6 +23,7 @@ class Teacher(db.Model):
             'employee_id': self.employee_id,
             'subject': self.subject,
             'department': self.department,
+            'is_class_teacher': self.is_class_teacher,
             'assigned_class': self.assigned_class,
             'assigned_section': self.assigned_section
         }

@@ -23,8 +23,8 @@ LAST_NAMES = ['Sharma', 'Verma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'R
 # 11 Subjects as per requirements
 SUBJECTS = ['Science', 'Mathematics', 'History', 'Social Science', 'Geography', 'Hindi', 'English', 'Sports', 'Music', 'Additional Language', 'Arts/Drawing']
 
-# 3 Classes with 1 section each (reduced for memory optimization)
-CLASSES = ['6', '7', '8']
+# 3 Classes (8, 9, 10) with 1 section each
+CLASSES = ['8', '9', '10']
 SECTIONS = ['A']  # Only section A
 
 def create_admin():
@@ -43,19 +43,32 @@ def create_admin():
 
 
 def create_teachers():
-    """Create 3 teachers (1 per class as class teacher) covering multiple subjects"""
-    print("Creating 3 teachers...")
+    """Create 11 teachers: 3 class teachers + 8 subject teachers"""
+    print("Creating 11 teachers...")
     teachers = []
     
-    # Teacher data: (name, primary_subject, assigned_class, gender, age)
-    # Each teacher is a class teacher for one class
-    teacher_data = [
-        ("Dr. Rajesh Kumar", "Science", "6", "Male", 35),
-        ("Prof. Priya Sharma", "Mathematics", "7", "Female", 32),
-        ("Mr. Rohit Verma", "Sports", "8", "Male", 33),  # MUST be male, age 31-35
+    # 3 Class Teachers (can see ALL students in their assigned class)
+    class_teachers = [
+        ("Dr. Rajesh Kumar", "Science", "8", True, "Male", 35),
+        ("Prof. Priya Sharma", "Mathematics", "9", True, "Female", 32),
+        ("Mr. Rohit Verma", "Sports", "10", True, "Male", 33),  # MUST be male, age 31-35
     ]
     
-    for i, (name, subject, assigned_class, gender, age) in enumerate(teacher_data, 1):
+    # 8 Subject Teachers (teach their subject across all classes)
+    subject_teachers = [
+        ("Mr. Amit Patel", "History", None, False, "Male", 38),
+        ("Ms. Sneha Gupta", "Social Science", None, False, "Female", 30),
+        ("Dr. Vikram Singh", "Geography", None, False, "Male", 40),
+        ("Mrs. Kavita Reddy", "Hindi", None, False, "Female", 34),
+        ("Mr. Arjun Nair", "English", None, False, "Male", 36),
+        ("Ms. Anjali Mehta", "Music", None, False, "Female", 29),
+        ("Dr. Meera Iyer", "Additional Language", None, False, "Female", 37),
+        ("Ms. Zara Khan", "Arts/Drawing", None, False, "Female", 31),
+    ]
+    
+    all_teachers = class_teachers + subject_teachers
+    
+    for i, (name, subject, assigned_class, is_class_teacher, gender, age) in enumerate(all_teachers, 1):
         # Remove titles first, then convert to email format
         clean_name = name.replace("Dr. ", "").replace("Prof. ", "").replace("Mr. ", "").replace("Mrs. ", "").replace("Ms. ", "")
         email = clean_name.lower().replace(" ", ".") + "@school.com"
@@ -75,8 +88,9 @@ def create_teachers():
             employee_id=f"TCH{i:03d}",
             subject=subject,
             department="Academic",
-            assigned_class=assigned_class,
-            assigned_section="A"
+            is_class_teacher=is_class_teacher,
+            assigned_class=assigned_class if is_class_teacher else None,
+            assigned_section="A" if is_class_teacher else None
         )
         db.session.add(teacher)
         teachers.append((user, teacher))
@@ -84,15 +98,15 @@ def create_teachers():
     return teachers
 
 def create_parents():
-    """Create 25 parent users (1 per student)"""
-    print("Creating 25 parents...")
+    """Create 60 parent users (1 per student)"""
+    print("Creating 60 parents...")
     parents = []
     
-    for i in range(1, 26):
+    for i in range(1, 61):
         first_name = random.choice(FIRST_NAMES)
         last_name = random.choice(LAST_NAMES)
         name = f"{first_name} {last_name}"
-        email = f"parent{i}@email.com"
+        email = f"{first_name.lower()}.{last_name.lower()}{i}@gmail.com"
         
         user = User(
             name=name,
@@ -109,30 +123,32 @@ def create_parents():
 
 
 def create_students(parents):
-    """Create 25 students across 3 classes with 1 section each"""
-    print("Creating 25 students...")
+    """Create 60 students across 3 classes (20 per class)"""
+    print("Creating 60 students...")
     students = []
     
-    # Performance categories: 8 high (32%), 12 average (48%), 5 at-risk (20%)
-    high_performers = 8
-    average_performers = 12
-    at_risk = 5
+    # Performance categories: 18 high (30%), 30 average (50%), 12 at-risk (20%)
+    high_performers = 18
+    average_performers = 30
+    at_risk = 12
     
     categories = ['high'] * high_performers + ['average'] * average_performers + ['at_risk'] * at_risk
     random.shuffle(categories)
     
     student_counter = 1
     
-    # Create students: Class 6 (9 students), Class 7 (8 students), Class 8 (8 students) = 25 total
-    students_per_class = [9, 8, 8]
-    
-    for class_idx, class_num in enumerate(CLASSES):
+    # Create 20 students per class (8, 9, 10)
+    for class_num in CLASSES:
         for section in SECTIONS:
-            for section_student in range(1, students_per_class[class_idx] + 1):
+            for section_student in range(1, 21):  # 20 students per class
+                # Get parent for this student
+                parent = parents[student_counter - 1]
+                parent_last_name = parent.name.split()[-1]
+                
+                # Create student with same last name as parent
                 first_name = random.choice(FIRST_NAMES)
-                last_name = random.choice(LAST_NAMES)
-                name = f"{first_name} {last_name}"
-                email = f"student{student_counter}@school.com"
+                name = f"{first_name} {parent_last_name}"
+                email = f"{first_name.lower()}.{parent_last_name.lower()}{student_counter}@gmail.com"
                 
                 user = User(
                     name=name,
@@ -144,12 +160,9 @@ def create_students(parents):
                 db.session.add(user)
                 db.session.flush()
                 
-                # Assign parent (each student gets exactly 1 parent)
-                parent = parents[student_counter - 1]  # 1-to-1 mapping
-                
-                # Generate DOB based on class (class 6 = 11-12 years, class 8 = 13-14 years)
+                # Generate DOB based on class (class 8 = 13-14 years, class 10 = 15-16 years)
                 class_int = int(class_num)
-                base_age = 11 + (class_int - 6)
+                base_age = 13 + (class_int - 8)
                 age = base_age + random.randint(0, 1)
                 dob = datetime.now().date() - timedelta(days=age*365 + random.randint(0, 365))
                 
@@ -745,28 +758,33 @@ def seed_all_data():
     print("="*60)
     print(f"\n📊 Summary:")
     print(f"  • 1 Admin user")
-    print(f"  • 3 Teachers (3 class teachers)")
-    print(f"  • 25 Parents")
-    print(f"  • 25 Students (8 high, 12 average, 5 at-risk)")
-    print(f"  • Classes 6-8 (1 section each, ~8-9 students per class)")
-    print(f"  • ~3,250 Attendance records (6 months)")
-    print(f"  • ~1,650 Marks records (6 exams × 11 subjects × 25 students)")
-    print(f"  • ~188 Assignments")
+    print(f"  • 11 Teachers (3 class teachers + 8 subject teachers)")
+    print(f"  • 60 Parents")
+    print(f"  • 60 Students (18 high, 30 average, 12 at-risk)")
+    print(f"  • Classes 8-10 (20 students per class)")
+    print(f"  • ~7,800 Attendance records (6 months)")
+    print(f"  • ~3,960 Marks records (6 exams × 11 subjects × 60 students)")
+    print(f"  • ~450 Assignments")
     print(f"  • 66 Learning resources (6 per subject)")
-    print(f"  • ~45 Alerts")
-    print(f"  • ~67 Achievements")
-    print(f"  • 25 Predictions")
-    print(f"  • ~100 Recommendations")
-    print(f"  • ~100 Career suggestions")
-    print(f"  • Total Users: 54 (1 admin + 3 teachers + 25 students + 25 parents)")
+    print(f"  • ~108 Alerts")
+    print(f"  • ~160 Achievements")
+    print(f"  • 60 Predictions")
+    print(f"  • ~240 Recommendations")
+    print(f"  • ~240 Career suggestions")
+    print(f"  • Total Users: 132 (1 admin + 11 teachers + 60 students + 60 parents)")
     
     print(f"\n🔑 Login Credentials:")
     print(f"  Admin:   admin@school.edu / Admin@123")
-    print(f"  Teacher: rajesh.kumar@school.com / Teacher@123 (Class 6A)")
-    print(f"  Teacher: priya.sharma@school.com / Teacher@123 (Class 7A)")
-    print(f"  Teacher: rohit.verma@school.com / Teacher@123 (Class 8A)")
-    print(f"  Parent:  parent1@email.com / Parent@123")
-    print(f"  Student: student1@school.com / Student@123")
+    print(f"\n  Class Teachers (see ALL students in their class):")
+    print(f"  • rajesh.kumar@school.com / Teacher@123 (Class 8A - 20 students)")
+    print(f"  • priya.sharma@school.com / Teacher@123 (Class 9A - 20 students)")
+    print(f"  • rohit.verma@school.com / Teacher@123 (Class 10A - 20 students)")
+    print(f"\n  Subject Teachers (see students they teach):")
+    print(f"  • amit.patel@school.com / Teacher@123 (History)")
+    print(f"  • sneha.gupta@school.com / Teacher@123 (Social Science)")
+    print(f"  • And 6 more subject teachers...")
+    print(f"\n  Parents: [firstname].[lastname][number]@gmail.com / Parent@123")
+    print(f"  Students: [firstname].[lastname][number]@gmail.com / Student@123")
     
     print(f"\n✅ Database ready for use!")
     print("="*60 + "\n")

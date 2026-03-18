@@ -128,7 +128,9 @@ def get_dashboard():
 def get_students():
     """
     GET /api/teacher/students
-    Returns: students in teacher's assigned class ONLY
+    Returns: students based on teacher type
+    - Class teachers: ALL students in their assigned class
+    - Subject teachers: ALL students (they teach all classes)
     OPTIMIZED: Uses eager loading to prevent N+1 queries
     """
     try:
@@ -143,7 +145,6 @@ def get_students():
         teacher = user.teacher_profile
         
         # OPTIMIZATION: Use eager loading to load all related data in one query
-        # Filter by teacher's assigned class
         students_query = Student.query.options(
             joinedload(Student.user),
             joinedload(Student.attendance_records),
@@ -151,11 +152,14 @@ def get_students():
             joinedload(Student.predictions)
         )
         
-        if teacher.assigned_class and teacher.assigned_section:
+        # Filter based on teacher type
+        if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
+            # Class teacher: show only students in assigned class
             students_query = students_query.filter_by(
                 class_name=teacher.assigned_class,
                 section=teacher.assigned_section
             )
+        # Subject teachers see all students (they teach all classes)
         
         students = students_query.all()
         
@@ -194,7 +198,8 @@ def get_students():
         return jsonify({
             'success': True,
             'students': students_data,
-            'total': len(students_data)
+            'total': len(students_data),
+            'teacher_type': 'class_teacher' if teacher.is_class_teacher else 'subject_teacher'
         }), 200
     
     except Exception as e:
