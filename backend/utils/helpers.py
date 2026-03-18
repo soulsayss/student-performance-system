@@ -65,7 +65,10 @@ def detect_at_risk_students():
                 'student_id': student.student_id,
                 'name': student.user.name,
                 'roll_number': student.roll_number,
-                'risk_factors': risk_factors
+                'class_name': student.class_name,
+                'section': student.section,
+                'risk_factors': risk_factors,
+                'reason': ', '.join(risk_factors)
             })
     
     return at_risk_students

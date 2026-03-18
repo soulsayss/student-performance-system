@@ -48,7 +48,7 @@ const TeacherDashboard = () => {
       try {
         const res = await teacherService.getAtRiskStudents();
         if (res.success) {
-          setAtRiskStudents(res.students || []);
+          setAtRiskStudents(res.at_risk_students || []);
         }
       } catch (err) {
         console.error('At-risk error:', err);
