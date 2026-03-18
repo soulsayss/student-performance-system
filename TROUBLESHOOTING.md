@@ -1,5 +1,19 @@
 # 🔧 Troubleshooting Guide - Teacher Dashboard CORS Issues
 
+## ✅ RECENT FIX (March 18, 2026)
+
+**Fixed Issue**: Teacher dashboard at-risk students API response mismatch
+
+**Changes Made**:
+1. Frontend (`TeacherDashboard.jsx`): Changed `res.students` to `res.at_risk_students` to match API response
+2. Backend (`helpers.py`): Added missing fields (`class_name`, `section`, `reason`) to at-risk students data structure
+
+**Commit**: 9956b22
+
+**Status**: Deployed to production. Test at https://student-performance-system-kohl.vercel.app
+
+---
+
 ## 📋 Problem Summary
 
 **Issue**: Teacher dashboard login fails with CORS errors and breaks all other dashboards until browser cache is cleared.
@@ -132,7 +146,7 @@ npm run dev
 ```bash
 # Logout from admin
 # Login with: rajesh.kumar@school.com / Teacher@123
-# Expected: May fail with CORS errors
+# Expected: Dashboard loads successfully
 ```
 
 **🔍 What to Check**:
@@ -404,6 +418,10 @@ git push origin main
 ### Error 5: Slow loading / Timeout
 **Cause**: N+1 query problem
 **Solution**: Check Step 5, Issue 3
+
+### Error 6: At-risk students not showing / TypeError
+**Cause**: API response key mismatch (res.students vs res.at_risk_students)
+**Solution**: Fixed in commit 9956b22 - frontend now correctly uses res.at_risk_students
 
 ---
 
