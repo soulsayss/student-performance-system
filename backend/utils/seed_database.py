@@ -43,12 +43,12 @@ def create_admin():
 
 
 def create_teachers():
-    """Create 15 teachers covering 11 subjects"""
-    print("Creating 15 teachers...")
+    """Create 10 teachers covering 11 subjects (some teachers handle multiple subjects)"""
+    print("Creating 10 teachers...")
     teachers = []
     
     # Teacher data: (name, subject, gender, age)
-    # Sports teacher MUST be male, age 31-35
+    # Reduced to 10 teachers, some will handle multiple subjects
     teacher_data = [
         ("Dr. Rajesh Kumar", "Science", "Male", 35),
         ("Prof. Priya Sharma", "Mathematics", "Female", 32),
@@ -60,11 +60,6 @@ def create_teachers():
         ("Mr. Rohit Verma", "Sports", "Male", 33),  # MUST be male, age 31-35
         ("Ms. Anjali Mehta", "Music", "Female", 29),
         ("Dr. Meera Iyer", "Additional Language", "Female", 37),
-        ("Prof. Suresh Joshi", "Arts/Drawing", "Male", 31),
-        ("Ms. Pooja Singh", "Science", "Female", 28),
-        ("Mr. Karan Shah", "Mathematics", "Male", 39),
-        ("Mrs. Deepa Rao", "English", "Female", 33),
-        ("Dr. Nikhil Desai", "Social Science", "Male", 42),
     ]
     
     for i, (name, subject, gender, age) in enumerate(teacher_data, 1):
@@ -94,11 +89,11 @@ def create_teachers():
     return teachers
 
 def create_parents():
-    """Create 150 parent users (1 per student)"""
-    print("Creating 150 parents...")
+    """Create 75 parent users (1 per student)"""
+    print("Creating 75 parents...")
     parents = []
     
-    for i in range(1, 151):
+    for i in range(1, 76):
         first_name = random.choice(FIRST_NAMES)
         last_name = random.choice(LAST_NAMES)
         name = f"{first_name} {last_name}"
@@ -119,25 +114,25 @@ def create_parents():
 
 
 def create_students(parents):
-    """Create 150 students across classes 6-10 with performance categories"""
-    print("Creating 150 students...")
+    """Create 75 students across classes 6-10 with performance categories"""
+    print("Creating 75 students...")
     students = []
     
-    # Performance categories: 45 high (30%), 75 average (50%), 30 at-risk (20%)
-    high_performers = 45
-    average_performers = 75
-    at_risk = 30
+    # Performance categories: 23 high (30%), 37 average (50%), 15 at-risk (20%)
+    high_performers = 23
+    average_performers = 37
+    at_risk = 15
     
     categories = ['high'] * high_performers + ['average'] * average_performers + ['at_risk'] * at_risk
     random.shuffle(categories)
     
     student_counter = 1
     
-    # Create 30 students per class (6, 7, 8, 9, 10)
+    # Create 15 students per class (6, 7, 8, 9, 10)
     for class_num in CLASSES:
-        # 10 students per section (A, B, C)
+        # 5 students per section (A, B, C)
         for section in SECTIONS:
-            for section_student in range(1, 11):
+            for section_student in range(1, 6):
                 first_name = random.choice(FIRST_NAMES)
                 last_name = random.choice(LAST_NAMES)
                 name = f"{first_name} {last_name}"
@@ -767,7 +762,7 @@ def seed_all_data():
     print(f"  • 150 Predictions")
     print(f"  • ~600 Recommendations")
     print(f"  • ~600 Career suggestions")
-    print(f"  • Total Users: 316 (1 admin + 15 teachers + 150 students + 150 parents)")
+    print(f"  • Total Users: 161 (1 admin + 10 teachers + 75 students + 75 parents)")
     
     print(f"\n🔑 Login Credentials:")
     print(f"  Admin:   admin@school.edu / Admin@123")

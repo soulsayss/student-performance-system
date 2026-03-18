@@ -56,7 +56,7 @@ An AI-powered system to predict student academic performance, identify at-risk s
 
 ## 📈 Key Metrics
 
-- **150+** Students managed
+- **75+** Students managed
 - **85%** ML prediction accuracy
 - **96%** Time saved on data entry
 - **1000%** ROI in first year
