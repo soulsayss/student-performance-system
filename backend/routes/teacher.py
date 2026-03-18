@@ -19,7 +19,8 @@ def get_current_teacher():
     if not user or user.role != 'teacher':
         return None
     
-    return user.teacher_profile
+    # Return the user object, not just teacher_profile
+    return user
 
 @teacher_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
@@ -87,10 +88,10 @@ def get_dashboard():
                 'present_today': present_today,
                 'class_average': round(class_average, 2),
                 'teacher_info': {
-                    'name': teacher.user.name,
-                    'subject': teacher.subject,
-                    'department': teacher.department,
-                    'employee_id': teacher.employee_id
+                    'name': user.name,
+                    'subject': user.teacher_profile.subject,
+                    'department': user.teacher_profile.department,
+                    'employee_id': user.teacher_profile.employee_id
                 }
             }
         }), 200
@@ -112,19 +113,21 @@ def get_students():
     OPTIMIZED: Uses eager loading to prevent N+1 queries
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
             }), 404
         
+        teacher = user.teacher_profile
+        
         # OPTIMIZATION: Use eager loading to load all related data in one query
         students = Student.query.options(
             joinedload(Student.user),
             joinedload(Student.attendance_records),
-            joinedload(Student.marks_records),
+            joinedload(Student.marks),
             joinedload(Student.predictions)
         ).all()
         
@@ -147,7 +150,7 @@ def get_students():
                 student_dict['attendance_percentage'] = 0
             
             # Calculate average marks (data already loaded)
-            marks = student.marks_records
+            marks = student.marks
             if marks:
                 avg = sum((m.score / m.max_score * 100) for m in marks if m.max_score > 0) / len(marks)
                 student_dict['average_marks'] = round(avg, 2)
@@ -181,13 +184,15 @@ def mark_attendance():
     Accept: student_id, date, status OR CSV file
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
             }), 404
+        
+        teacher = user.teacher_profile
         
         # Check if CSV file is uploaded
         if 'file' in request.files:
@@ -340,13 +345,15 @@ def add_marks():
     Accept: student_id, subject, exam_type, score, max_score OR CSV file
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
             }), 404
+        
+        teacher = user.teacher_profile
         
         # Check if CSV file is uploaded
         if 'file' in request.files:
@@ -482,9 +489,9 @@ def get_analytics():
     Returns: class performance charts data
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
@@ -589,9 +596,9 @@ def get_at_risk_students():
     Returns: flagged students (low attendance/performance)
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
@@ -636,9 +643,9 @@ def send_alert():
     Accept: student_id, message, severity
     """
     try:
-        teacher = get_current_teacher()
+        user = get_current_teacher()
         
-        if not teacher:
+        if not user or not user.teacher_profile:
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
