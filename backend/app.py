@@ -86,7 +86,17 @@ def create_app(config_class=Config):
         try:
             user_count = User.query.count()
             
-            if user_count <= 1:  # Empty or only admin
+            # Check for force reseed environment variable
+            force_reseed = os.getenv('FORCE_RESEED', 'false').lower() == 'true'
+            
+            if user_count <= 1 or force_reseed:  # Empty or only admin OR force reseed
+                if force_reseed:
+                    print("\n" + "="*60)
+                    print("🔄 FORCE RESEED ENABLED - DROPPING ALL TABLES")
+                    print("="*60)
+                    db.drop_all()
+                    db.create_all()
+                
                 print("\n" + "="*60)
                 print("🌱 DATABASE IS EMPTY - RUNNING AUTO-SEED SCRIPT")
                 print("="*60)
@@ -98,6 +108,7 @@ def create_app(config_class=Config):
                 print("\n✅ Auto-seeding completed successfully!")
             else:
                 print(f"✓ Database already populated with {user_count} users. Skipping seed.")
+                print(f"💡 To force reseed, set environment variable: FORCE_RESEED=true")
         except Exception as e:
             print(f"⚠️ Database initialization: {str(e)}")
             print("Note: You can manually seed the database using:")
