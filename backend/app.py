@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
@@ -21,6 +21,7 @@ def create_app(config_class=Config):
     cors_origins = [
         'http://localhost:3000',                                    # Local development
         'http://localhost:5000',                                    # Local backend
+        'http://localhost:5173',                                    # Vite dev server
         'https://student-performance-system-kohl.vercel.app',      # Your Vercel frontend
     ]
     
@@ -29,7 +30,25 @@ def create_app(config_class=Config):
     if production_frontend:
         cors_origins.append(production_frontend)
     
-    CORS(app, origins=cors_origins, supports_credentials=True)
+    # Configure CORS with explicit settings
+    CORS(app, 
+         resources={r"/api/*": {"origins": cors_origins}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+         expose_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+    )
+    
+    # Add CORS headers to all responses
+    @app.after_request
+    def after_request(response):
+        origin = request.headers.get('Origin')
+        if origin in cors_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
     
     # Initialize extensions
     db.init_app(app)
