@@ -40,7 +40,7 @@ def get_dashboard():
         children = Student.query.options(
             joinedload(Student.user),
             joinedload(Student.attendance_records),
-            joinedload(Student.marks_records),
+            joinedload(Student.marks),
             joinedload(Student.predictions),
             joinedload(Student.alerts)
         ).filter_by(parent_id=parent.user_id).all()
@@ -60,7 +60,7 @@ def get_dashboard():
                 attendance_pct = 0
             
             # Calculate average marks (data already loaded)
-            marks = child.marks_records
+            marks = child.marks
             if marks:
                 avg_marks = round(sum((m.score / m.max_score * 100) for m in marks if m.max_score > 0) / len(marks), 2)
             else:

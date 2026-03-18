@@ -42,7 +42,7 @@ def get_dashboard():
         student_with_data = Student.query.options(
             joinedload(Student.user),
             joinedload(Student.attendance_records),
-            joinedload(Student.marks_records),
+            joinedload(Student.marks),
             joinedload(Student.predictions),
             joinedload(Student.achievements),
             joinedload(Student.alerts)
@@ -58,7 +58,7 @@ def get_dashboard():
         attendance_percentage = round((present_days / total_days * 100), 2) if total_days > 0 else 0
         
         # Calculate average marks
-        marks_records = student_with_data.marks_records
+        marks_records = student_with_data.marks
         if marks_records:
             total_percentage = sum((m.score / m.max_score * 100) for m in marks_records if m.max_score > 0)
             average_marks = round(total_percentage / len(marks_records), 2)
