@@ -56,6 +56,27 @@ def create_app(config_class=Config):
         db.create_all()
         print("Database tables created successfully!")
         
+        # Fix teacher emails if needed (one-time fix for existing data)
+        try:
+            teachers = User.query.filter_by(role='teacher').all()
+            fixed_count = 0
+            for user in teachers:
+                if user.email.startswith('.') or '..' in user.email:
+                    old_email = user.email
+                    # Remove leading dots
+                    new_email = user.email.lstrip('.')
+                    # Fix double dots
+                    new_email = new_email.replace('..', '.')
+                    user.email = new_email
+                    fixed_count += 1
+                    print(f"  Fixed teacher email: {old_email} → {new_email}")
+            
+            if fixed_count > 0:
+                db.session.commit()
+                print(f"✅ Fixed {fixed_count} teacher email addresses")
+        except Exception as e:
+            print(f"⚠️ Email fix check: {str(e)}")
+        
         # Auto-seed database on first deployment (only if empty)
         try:
             user_count = User.query.count()
