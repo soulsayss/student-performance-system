@@ -27,7 +27,7 @@ def get_current_teacher():
 def get_dashboard():
     """
     GET /api/teacher/dashboard
-    Returns: class overview, total students, at-risk count
+    Returns: class overview, total students, at-risk count (ONLY for assigned class)
     """
     try:
         user = get_current_teacher()
@@ -38,8 +38,17 @@ def get_dashboard():
                 'message': 'Teacher profile not found'
             }), 404
         
-        # Get all students (in production, filter by teacher's assigned classes)
-        students = Student.query.all()
+        teacher = user.teacher_profile
+        
+        # Get ONLY students from teacher's assigned class
+        students_query = Student.query
+        if teacher.assigned_class and teacher.assigned_section:
+            students_query = students_query.filter_by(
+                class_name=teacher.assigned_class,
+                section=teacher.assigned_section
+            )
+        
+        students = students_query.all()
         total_students = len(students)
         
         # Calculate at-risk students (attendance < 75% or average marks < 50%)
@@ -68,13 +77,21 @@ def get_dashboard():
                 if avg_percentage < 50:
                     at_risk_count += 1
         
-        # Get recent attendance stats
+        # Get recent attendance stats for assigned class
         today = datetime.utcnow().date()
-        today_attendance = Attendance.query.filter_by(date=today).all()
+        today_attendance = Attendance.query.join(Student).filter(
+            Attendance.date == today,
+            Student.class_name == teacher.assigned_class,
+            Student.section == teacher.assigned_section
+        ).all()
         present_today = sum(1 for a in today_attendance if a.status == 'present')
         
-        # Get class average
-        all_marks = Marks.query.join(Student).all()
+        # Get class average for assigned class
+        all_marks = Marks.query.join(Student).filter(
+            Student.class_name == teacher.assigned_class,
+            Student.section == teacher.assigned_section
+        ).all()
+        
         if all_marks:
             class_average = sum((m.score / m.max_score * 100) for m in all_marks if m.max_score > 0) / len(all_marks)
         else:
@@ -89,9 +106,11 @@ def get_dashboard():
                 'class_average': round(class_average, 2),
                 'teacher_info': {
                     'name': user.name,
-                    'subject': user.teacher_profile.subject,
-                    'department': user.teacher_profile.department,
-                    'employee_id': user.teacher_profile.employee_id
+                    'subject': teacher.subject,
+                    'department': teacher.department,
+                    'employee_id': teacher.employee_id,
+                    'assigned_class': teacher.assigned_class,
+                    'assigned_section': teacher.assigned_section
                 }
             }
         }), 200
@@ -109,7 +128,7 @@ def get_dashboard():
 def get_students():
     """
     GET /api/teacher/students
-    Returns: all students in teacher's class
+    Returns: students in teacher's assigned class ONLY
     OPTIMIZED: Uses eager loading to prevent N+1 queries
     """
     try:
@@ -124,12 +143,21 @@ def get_students():
         teacher = user.teacher_profile
         
         # OPTIMIZATION: Use eager loading to load all related data in one query
-        students = Student.query.options(
+        # Filter by teacher's assigned class
+        students_query = Student.query.options(
             joinedload(Student.user),
             joinedload(Student.attendance_records),
             joinedload(Student.marks),
             joinedload(Student.predictions)
-        ).all()
+        )
+        
+        if teacher.assigned_class and teacher.assigned_section:
+            students_query = students_query.filter_by(
+                class_name=teacher.assigned_class,
+                section=teacher.assigned_section
+            )
+        
+        students = students_query.all()
         
         students_data = []
         six_months_ago = datetime.utcnow() - timedelta(days=180)
@@ -593,7 +621,7 @@ def get_analytics():
 def get_at_risk_students():
     """
     GET /api/teacher/at-risk-students
-    Returns: flagged students (low attendance/performance)
+    Returns: flagged students (low attendance/performance) from assigned class ONLY
     """
     try:
         user = get_current_teacher()
@@ -604,8 +632,20 @@ def get_at_risk_students():
                 'message': 'Teacher profile not found'
             }), 404
         
+        teacher = user.teacher_profile
+        
         # Use helper function to detect at-risk students
-        at_risk_students = detect_at_risk_students()
+        all_at_risk = detect_at_risk_students()
+        
+        # Filter by teacher's assigned class
+        at_risk_students = []
+        if teacher.assigned_class and teacher.assigned_section:
+            at_risk_students = [
+                s for s in all_at_risk 
+                if s.get('class_name') == teacher.assigned_class and s.get('section') == teacher.assigned_section
+            ]
+        else:
+            at_risk_students = all_at_risk
         
         # Generate alerts for newly detected at-risk students
         for student_data in at_risk_students:
