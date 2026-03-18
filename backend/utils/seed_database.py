@@ -68,7 +68,9 @@ def create_teachers():
     ]
     
     for i, (name, subject, gender, age) in enumerate(teacher_data, 1):
-        email = name.lower().replace(" ", ".").replace("dr.", "").replace("prof.", "").replace("mr.", "").replace("mrs.", "").replace("ms.", "") + "@school.com"
+        # Remove titles first, then convert to email format
+        clean_name = name.replace("Dr. ", "").replace("Prof. ", "").replace("Mr. ", "").replace("Mrs. ", "").replace("Ms. ", "")
+        email = clean_name.lower().replace(" ", ".") + "@school.com"
         
         user = User(
             name=name,
