@@ -111,6 +111,44 @@ def create_app(config_class=Config):
     def health():
         return {'status': 'healthy'}
     
+    @app.route('/api/admin/reset-database', methods=['POST'])
+    def reset_database():
+        """
+        DANGER: Reset entire database and reseed
+        Requires special secret key for security
+        """
+        from flask import request
+        
+        # Security check - require secret key
+        secret = request.headers.get('X-Reset-Secret')
+        if secret != 'RESET_DB_2026_SECURE':
+            return {'success': False, 'message': 'Unauthorized'}, 401
+        
+        try:
+            # Drop all tables
+            db.drop_all()
+            # Recreate tables
+            db.create_all()
+            
+            # Seed with new data
+            from utils.seed_database import seed_all_data
+            seed_all_data()
+            
+            # Verify
+            user_count = User.query.count()
+            
+            return {
+                'success': True,
+                'message': 'Database reset and reseeded successfully',
+                'total_users': user_count
+            }, 200
+        except Exception as e:
+            return {
+                'success': False,
+                'message': 'Failed to reset database',
+                'error': str(e)
+            }, 500
+    
     # Global error handlers
     @app.errorhandler(404)
     def not_found(error):
