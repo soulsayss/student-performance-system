@@ -20,17 +20,19 @@ FIRST_NAMES = ['Aarav', 'Vivaan', 'Aditya', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 
 LAST_NAMES = ['Sharma', 'Verma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'Rao', 'Nair', 'Iyer',
               'Joshi', 'Mehta', 'Desai', 'Kulkarni', 'Agarwal', 'Bansal', 'Malhotra', 'Kapoor', 'Chopra', 'Bhatia']
 
-SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Computer Science', 'History', 'Geography', 'Economics']
+# 11 Subjects as per requirements
+SUBJECTS = ['Science', 'Mathematics', 'History', 'Social Science', 'Geography', 'Hindi', 'English', 'Sports', 'Music', 'Additional Language', 'Arts/Drawing']
 
-CLASSES = ['9', '10', '11', '12']
-SECTIONS = ['A', 'B', 'C', 'D']
+# Classes 6-10 as per requirements
+CLASSES = ['6', '7', '8', '9', '10']
+SECTIONS = ['A', 'B', 'C']
 
 def create_admin():
     """Create admin user"""
     print("Creating admin user...")
     admin = User(
         name="System Administrator",
-        email="admin@school.com",
+        email="admin@school.edu",
         role="admin",
         is_active=True
     )
@@ -41,24 +43,31 @@ def create_admin():
 
 
 def create_teachers():
-    """Create 10 teachers with different subjects"""
-    print("Creating 10 teachers...")
+    """Create 15 teachers covering 11 subjects"""
+    print("Creating 15 teachers...")
     teachers = []
     
+    # Teacher data: (name, subject, gender, age)
+    # Sports teacher MUST be male, age 31-35
     teacher_data = [
-        ("Dr. Rajesh Kumar", "Mathematics", "Science"),
-        ("Prof. Priya Sharma", "Physics", "Science"),
-        ("Dr. Amit Patel", "Chemistry", "Science"),
-        ("Ms. Sneha Gupta", "Biology", "Science"),
-        ("Mr. Vikram Singh", "English", "Languages"),
-        ("Mrs. Kavita Reddy", "Hindi", "Languages"),
-        ("Mr. Arjun Nair", "Computer Science", "Technology"),
-        ("Dr. Meera Iyer", "History", "Social Studies"),
-        ("Prof. Suresh Joshi", "Geography", "Social Studies"),
-        ("Ms. Anjali Mehta", "Economics", "Commerce")
+        ("Dr. Rajesh Kumar", "Science", "Male", 35),
+        ("Prof. Priya Sharma", "Mathematics", "Female", 32),
+        ("Mr. Amit Patel", "History", "Male", 38),
+        ("Ms. Sneha Gupta", "Social Science", "Female", 30),
+        ("Dr. Vikram Singh", "Geography", "Male", 40),
+        ("Mrs. Kavita Reddy", "Hindi", "Female", 34),
+        ("Mr. Arjun Nair", "English", "Male", 36),
+        ("Mr. Rohit Verma", "Sports", "Male", 33),  # MUST be male, age 31-35
+        ("Ms. Anjali Mehta", "Music", "Female", 29),
+        ("Dr. Meera Iyer", "Additional Language", "Female", 37),
+        ("Prof. Suresh Joshi", "Arts/Drawing", "Male", 31),
+        ("Ms. Pooja Singh", "Science", "Female", 28),
+        ("Mr. Karan Shah", "Mathematics", "Male", 39),
+        ("Mrs. Deepa Rao", "English", "Female", 33),
+        ("Dr. Nikhil Desai", "Social Science", "Male", 42),
     ]
     
-    for i, (name, subject, dept) in enumerate(teacher_data, 1):
+    for i, (name, subject, gender, age) in enumerate(teacher_data, 1):
         email = name.lower().replace(" ", ".").replace("dr.", "").replace("prof.", "").replace("mr.", "").replace("mrs.", "").replace("ms.", "") + "@school.com"
         
         user = User(
@@ -75,7 +84,7 @@ def create_teachers():
             user_id=user.user_id,
             employee_id=f"TCH{i:03d}",
             subject=subject,
-            department=dept
+            department="Academic"
         )
         db.session.add(teacher)
         teachers.append((user, teacher))
@@ -83,11 +92,11 @@ def create_teachers():
     return teachers
 
 def create_parents():
-    """Create 20 parent users"""
-    print("Creating 20 parents...")
+    """Create 150 parent users (1 per student)"""
+    print("Creating 150 parents...")
     parents = []
     
-    for i in range(1, 21):
+    for i in range(1, 151):
         first_name = random.choice(FIRST_NAMES)
         last_name = random.choice(LAST_NAMES)
         name = f"{first_name} {last_name}"
@@ -108,56 +117,61 @@ def create_parents():
 
 
 def create_students(parents):
-    """Create 100 students with performance categories"""
-    print("Creating 100 students...")
+    """Create 150 students across classes 6-10 with performance categories"""
+    print("Creating 150 students...")
     students = []
     
-    # Performance categories
-    high_performers = 30  # 30%
-    average_performers = 50  # 50%
-    at_risk = 20  # 20%
+    # Performance categories: 45 high (30%), 75 average (50%), 30 at-risk (20%)
+    high_performers = 45
+    average_performers = 75
+    at_risk = 30
     
     categories = ['high'] * high_performers + ['average'] * average_performers + ['at_risk'] * at_risk
     random.shuffle(categories)
     
-    for i in range(1, 101):
-        first_name = random.choice(FIRST_NAMES)
-        last_name = random.choice(LAST_NAMES)
-        name = f"{first_name} {last_name}"
-        email = f"student{i}@school.com"
-        
-        user = User(
-            name=name,
-            email=email,
-            role="student",
-            is_active=True
-        )
-        user.set_password("Student@123")
-        db.session.add(user)
-        db.session.flush()
-        
-        # Assign parent (some students share parents)
-        parent = random.choice(parents) if random.random() > 0.1 else None
-        
-        # Random class and section
-        class_name = random.choice(CLASSES)
-        section = random.choice(SECTIONS)
-        
-        # Generate DOB (14-18 years old)
-        age = random.randint(14, 18)
-        dob = datetime.now().date() - timedelta(days=age*365 + random.randint(0, 365))
-        
-        student = Student(
-            user_id=user.user_id,
-            roll_number=f"{class_name}{section}{i:03d}",
-            class_name=class_name,
-            section=section,
-            parent_id=parent.user_id if parent else None,
-            dob=dob,
-            gender=random.choice(['Male', 'Female'])
-        )
-        db.session.add(student)
-        students.append((user, student, categories[i-1]))
+    student_counter = 1
+    
+    # Create 30 students per class (6, 7, 8, 9, 10)
+    for class_num in CLASSES:
+        # 10 students per section (A, B, C)
+        for section in SECTIONS:
+            for section_student in range(1, 11):
+                first_name = random.choice(FIRST_NAMES)
+                last_name = random.choice(LAST_NAMES)
+                name = f"{first_name} {last_name}"
+                email = f"student{student_counter}@school.com"
+                
+                user = User(
+                    name=name,
+                    email=email,
+                    role="student",
+                    is_active=True
+                )
+                user.set_password("Student@123")
+                db.session.add(user)
+                db.session.flush()
+                
+                # Assign parent (each student gets exactly 1 parent)
+                parent = parents[student_counter - 1]  # 1-to-1 mapping
+                
+                # Generate DOB based on class (class 6 = 11-12 years, class 10 = 15-16 years)
+                class_int = int(class_num)
+                base_age = 11 + (class_int - 6)
+                age = base_age + random.randint(0, 1)
+                dob = datetime.now().date() - timedelta(days=age*365 + random.randint(0, 365))
+                
+                student = Student(
+                    user_id=user.user_id,
+                    roll_number=f"{class_num}{section}{section_student:02d}",
+                    class_name=class_num,
+                    section=section,
+                    parent_id=parent.user_id,
+                    dob=dob,
+                    gender=random.choice(['Male', 'Female'])
+                )
+                db.session.add(student)
+                students.append((user, student, categories[student_counter - 1]))
+                student_counter += 1
     
     db.session.flush()
     return students
@@ -207,7 +221,7 @@ def create_attendance(students, teachers):
 
 
 def create_marks(students):
-    """Create exam records for all students"""
+    """Create exam records for all students across all 11 subjects"""
     print("Creating exam records...")
     
     exam_types = [
@@ -222,7 +236,8 @@ def create_marks(students):
     marks_count = 0
     
     for user, student, category in students:
-        for subject in SUBJECTS[:6]:  # 6 subjects per student
+        # Create marks for all 11 subjects
+        for subject in SUBJECTS:
             for exam_name, max_score, days_ago in exam_types:
                 # Score based on category
                 if category == 'high':
@@ -252,7 +267,7 @@ def create_marks(students):
 
 
 def create_assignments(students):
-    """Create assignments for students"""
+    """Create assignments for students across all 11 subjects"""
     print("Creating assignments...")
     
     assignment_titles = [
@@ -270,7 +285,7 @@ def create_assignments(students):
         num_assignments = random.randint(5, 10)
         
         for i in range(num_assignments):
-            subject = random.choice(SUBJECTS[:6])
+            subject = random.choice(SUBJECTS)
             title = random.choice(assignment_titles)
             
             # Due date (past or future)
@@ -313,45 +328,98 @@ def create_assignments(students):
 
 
 def create_resources():
-    """Create 50+ learning resources"""
+    """Create ~66 learning resources across all 11 subjects"""
     print("Creating learning resources...")
     
     resources_data = [
-        # Mathematics
-        ("Mathematics", "Calculus Fundamentals", "Learn the basics of differential and integral calculus", "https://example.com/calculus-basics", "video", "beginner"),
-        ("Mathematics", "Advanced Algebra", "Master algebraic equations and functions", "https://example.com/algebra-advanced", "article", "intermediate"),
-        ("Mathematics", "Trigonometry Guide", "Complete guide to trigonometric functions", "https://example.com/trigonometry", "pdf", "intermediate"),
-        ("Mathematics", "Geometry Essentials", "Understanding shapes, angles, and theorems", "https://example.com/geometry", "video", "beginner"),
-        ("Mathematics", "Statistics and Probability", "Data analysis and probability theory", "https://example.com/statistics", "article", "advanced"),
+        # Science (6 resources)
+        ("Science", "Physics Fundamentals", "Learn the basics of physics", "https://example.com/physics-basics", "video", "beginner"),
+        ("Science", "Chemistry Essentials", "Master chemical reactions", "https://example.com/chemistry", "article", "intermediate"),
+        ("Science", "Biology Guide", "Understanding living organisms", "https://example.com/biology", "pdf", "beginner"),
+        ("Science", "Advanced Science", "Deep dive into scientific concepts", "https://example.com/science-advanced", "video", "advanced"),
+        ("Science", "Lab Experiments", "Hands-on science experiments", "https://example.com/lab", "article", "intermediate"),
+        ("Science", "Science Quiz", "Test your science knowledge", "https://example.com/science-quiz", "quiz", "beginner"),
         
-        # Physics
-        ("Physics", "Newton's Laws of Motion", "Understanding force, mass, and acceleration", "https://example.com/newton-laws", "video", "beginner"),
-        ("Physics", "Electricity and Magnetism", "Electromagnetic theory and applications", "https://example.com/electromagnetism", "article", "intermediate"),
-        ("Physics", "Quantum Mechanics Intro", "Introduction to quantum physics", "https://example.com/quantum", "pdf", "advanced"),
-        ("Physics", "Thermodynamics", "Heat, energy, and entropy", "https://example.com/thermodynamics", "video", "intermediate"),
-        ("Physics", "Optics and Light", "Wave theory and optical phenomena", "https://example.com/optics", "article", "beginner"),
+        # Mathematics (6 resources)
+        ("Mathematics", "Calculus Fundamentals", "Learn differential and integral calculus", "https://example.com/calculus", "video", "beginner"),
+        ("Mathematics", "Algebra Mastery", "Master algebraic equations", "https://example.com/algebra", "article", "intermediate"),
+        ("Mathematics", "Geometry Guide", "Understanding shapes and theorems", "https://example.com/geometry", "pdf", "intermediate"),
+        ("Mathematics", "Statistics Basics", "Data analysis and probability", "https://example.com/statistics", "video", "beginner"),
+        ("Mathematics", "Advanced Math", "Complex mathematical concepts", "https://example.com/math-advanced", "article", "advanced"),
+        ("Mathematics", "Math Quiz", "Test your math skills", "https://example.com/math-quiz", "quiz", "beginner"),
         
-        # Chemistry
-        ("Chemistry", "Periodic Table Mastery", "Understanding elements and their properties", "https://example.com/periodic-table", "video", "beginner"),
-        ("Chemistry", "Organic Chemistry Basics", "Introduction to carbon compounds", "https://example.com/organic-chem", "article", "intermediate"),
-        ("Chemistry", "Chemical Reactions", "Types of reactions and balancing equations", "https://example.com/reactions", "pdf", "beginner"),
-        ("Chemistry", "Acids and Bases", "pH scale and acid-base chemistry", "https://example.com/acids-bases", "video", "intermediate"),
-        ("Chemistry", "Electrochemistry", "Redox reactions and electrochemical cells", "https://example.com/electrochem", "article", "advanced"),
+        # History (6 resources)
+        ("History", "Ancient History", "Learn about ancient civilizations", "https://example.com/ancient-history", "video", "beginner"),
+        ("History", "Medieval Period", "Understanding the medieval era", "https://example.com/medieval", "article", "intermediate"),
+        ("History", "Modern History", "Recent historical events", "https://example.com/modern-history", "pdf", "intermediate"),
+        ("History", "World Wars", "Comprehensive guide to world wars", "https://example.com/world-wars", "video", "advanced"),
+        ("History", "Historical Analysis", "Analyzing historical events", "https://example.com/history-analysis", "article", "advanced"),
+        ("History", "History Quiz", "Test your history knowledge", "https://example.com/history-quiz", "quiz", "beginner"),
+        
+        # Social Science (6 resources)
+        ("Social Science", "Sociology Basics", "Understanding society", "https://example.com/sociology", "video", "beginner"),
+        ("Social Science", "Political Systems", "Government and politics", "https://example.com/politics", "article", "intermediate"),
+        ("Social Science", "Economics Intro", "Basic economic concepts", "https://example.com/economics", "pdf", "beginner"),
+        ("Social Science", "Social Issues", "Contemporary social problems", "https://example.com/social-issues", "video", "intermediate"),
+        ("Social Science", "Cultural Studies", "Understanding cultures", "https://example.com/culture", "article", "intermediate"),
+        ("Social Science", "Social Science Quiz", "Test your social science knowledge", "https://example.com/social-quiz", "quiz", "beginner"),
+        
+        # Geography (6 resources)
+        ("Geography", "World Geography", "Learn about world geography", "https://example.com/world-geo", "video", "beginner"),
+        ("Geography", "Physical Geography", "Understanding landforms", "https://example.com/physical-geo", "article", "intermediate"),
+        ("Geography", "Climate Zones", "Learning about climate patterns", "https://example.com/climate", "pdf", "beginner"),
+        ("Geography", "Human Geography", "Understanding human populations", "https://example.com/human-geo", "video", "intermediate"),
+        ("Geography", "Map Reading", "How to read and interpret maps", "https://example.com/maps", "article", "beginner"),
+        ("Geography", "Geography Quiz", "Test your geography knowledge", "https://example.com/geo-quiz", "quiz", "beginner"),
+        
+        # Hindi (6 resources)
+        ("Hindi", "Hindi Grammar", "Learn Hindi grammar rules", "https://example.com/hindi-grammar", "video", "beginner"),
+        ("Hindi", "Hindi Literature", "Understanding Hindi literature", "https://example.com/hindi-lit", "article", "intermediate"),
+        ("Hindi", "Hindi Vocabulary", "Expand your Hindi vocabulary", "https://example.com/hindi-vocab", "pdf", "beginner"),
+        ("Hindi", "Hindi Poetry", "Appreciating Hindi poetry", "https://example.com/hindi-poetry", "video", "intermediate"),
+        ("Hindi", "Hindi Writing", "Improve your Hindi writing", "https://example.com/hindi-writing", "article", "intermediate"),
+        ("Hindi", "Hindi Quiz", "Test your Hindi knowledge", "https://example.com/hindi-quiz", "quiz", "beginner"),
+        
+        # English (6 resources)
+        ("English", "English Grammar", "Master English grammar", "https://example.com/english-grammar", "video", "beginner"),
+        ("English", "English Literature", "Understanding English literature", "https://example.com/english-lit", "article", "intermediate"),
+        ("English", "Vocabulary Building", "Expand your English vocabulary", "https://example.com/vocab", "pdf", "beginner"),
+        ("English", "Essay Writing", "Learn to write effective essays", "https://example.com/essays", "video", "intermediate"),
+        ("English", "Reading Comprehension", "Improve reading skills", "https://example.com/reading", "article", "intermediate"),
+        ("English", "English Quiz", "Test your English knowledge", "https://example.com/english-quiz", "quiz", "beginner"),
+        
+        # Sports (6 resources)
+        ("Sports", "Physical Fitness", "Learn about physical fitness", "https://example.com/fitness", "video", "beginner"),
+        ("Sports", "Sports Techniques", "Master sports techniques", "https://example.com/techniques", "article", "intermediate"),
+        ("Sports", "Team Sports", "Understanding team sports", "https://example.com/team-sports", "pdf", "beginner"),
+        ("Sports", "Sports Nutrition", "Nutrition for athletes", "https://example.com/nutrition", "video", "intermediate"),
+        ("Sports", "Sports Psychology", "Mental aspects of sports", "https://example.com/sports-psych", "article", "advanced"),
+        ("Sports", "Sports Quiz", "Test your sports knowledge", "https://example.com/sports-quiz", "quiz", "beginner"),
+        
+        # Music (6 resources)
+        ("Music", "Music Theory", "Learn music theory basics", "https://example.com/music-theory", "video", "beginner"),
+        ("Music", "Instrument Guide", "Guide to musical instruments", "https://example.com/instruments", "article", "beginner"),
+        ("Music", "Classical Music", "Understanding classical music", "https://example.com/classical", "pdf", "intermediate"),
+        ("Music", "Music Composition", "Learn to compose music", "https://example.com/composition", "video", "intermediate"),
+        ("Music", "Music History", "History of music", "https://example.com/music-history", "article", "intermediate"),
+        ("Music", "Music Quiz", "Test your music knowledge", "https://example.com/music-quiz", "quiz", "beginner"),
+        
+        # Additional Language (6 resources)
+        ("Additional Language", "Language Basics", "Learn language fundamentals", "https://example.com/lang-basics", "video", "beginner"),
+        ("Additional Language", "Language Grammar", "Master language grammar", "https://example.com/lang-grammar", "article", "intermediate"),
+        ("Additional Language", "Vocabulary", "Build language vocabulary", "https://example.com/lang-vocab", "pdf", "beginner"),
+        ("Additional Language", "Conversation", "Practice language conversation", "https://example.com/conversation", "video", "intermediate"),
+        ("Additional Language", "Language Culture", "Understanding language culture", "https://example.com/lang-culture", "article", "intermediate"),
+        ("Additional Language", "Language Quiz", "Test your language knowledge", "https://example.com/lang-quiz", "quiz", "beginner"),
+        
+        # Arts/Drawing (6 resources)
+        ("Arts/Drawing", "Drawing Basics", "Learn basic drawing techniques", "https://example.com/drawing-basics", "video", "beginner"),
+        ("Arts/Drawing", "Color Theory", "Understanding color theory", "https://example.com/color", "article", "intermediate"),
+        ("Arts/Drawing", "Perspective Drawing", "Master perspective drawing", "https://example.com/perspective", "pdf", "intermediate"),
+        ("Arts/Drawing", "Portrait Drawing", "Learn portrait drawing", "https://example.com/portraits", "video", "intermediate"),
+        ("Arts/Drawing", "Art History", "Understanding art history", "https://example.com/art-history", "article", "advanced"),
+        ("Arts/Drawing", "Art Quiz", "Test your art knowledge", "https://example.com/art-quiz", "quiz", "beginner"),
     ]
-    
-    # Add more resources
-    for subject in ["Biology", "English", "Hindi", "Computer Science", "History", "Geography"]:
-        for i in range(6):
-            difficulty = random.choice(["beginner", "intermediate", "advanced"])
-            resource_type = random.choice(["video", "article", "pdf", "quiz"])
-            resources_data.append((
-                subject,
-                f"{subject} Topic {i+1}",
-                f"Comprehensive guide to {subject.lower()} concepts",
-                f"https://example.com/{subject.lower()}-{i+1}",
-                resource_type,
-                difficulty
-            ))
     
     for subject, title, desc, link, res_type, difficulty in resources_data:
         resource = Resource(
@@ -369,7 +437,7 @@ def create_resources():
 
 
 def create_alerts(students):
-    """Create alerts for at-risk students"""
+    """Create alerts for students based on performance category"""
     print("Creating alerts...")
     
     alert_messages = {
@@ -403,7 +471,7 @@ def create_alerts(students):
                 severity = random.choices(['critical', 'warning'], weights=[0.6, 0.4])[0]
                 message = random.choice(alert_messages[severity])
                 if '{subject}' in message:
-                    message = message.format(subject=random.choice(SUBJECTS[:6]))
+                    message = message.format(subject=random.choice(SUBJECTS))
                 
                 alert = Alert(
                     student_id=student.student_id,
@@ -422,7 +490,7 @@ def create_alerts(students):
                     severity = random.choices(['warning', 'info'], weights=[0.6, 0.4])[0]
                     message = random.choice(alert_messages[severity])
                     if '{subject}' in message:
-                        message = message.format(subject=random.choice(SUBJECTS[:6]))
+                        message = message.format(subject=random.choice(SUBJECTS))
                     
                     alert = Alert(
                         student_id=student.student_id,
@@ -440,7 +508,7 @@ def create_alerts(students):
                 for _ in range(num_alerts):
                     message = random.choice(alert_messages['info'])
                     if '{subject}' in message:
-                        message = message.format(subject=random.choice(SUBJECTS[:6]))
+                        message = message.format(subject=random.choice(SUBJECTS))
                     
                     alert = Alert(
                         student_id=student.student_id,
@@ -694,21 +762,23 @@ def main():
         print("="*60)
         print(f"\n📊 Summary:")
         print(f"  • 1 Admin user")
-        print(f"  • 10 Teachers")
-        print(f"  • 20 Parents")
-        print(f"  • 100 Students (30 high, 50 average, 20 at-risk)")
-        print(f"  • ~13,000 Attendance records (6 months)")
-        print(f"  • ~3,600 Marks records")
-        print(f"  • ~750 Assignments")
-        print(f"  • 51 Learning resources")
-        print(f"  • ~200 Alerts")
-        print(f"  • ~150 Achievements")
-        print(f"  • 100 Predictions")
-        print(f"  • ~350 Recommendations")
-        print(f"  • ~400 Career suggestions")
+        print(f"  • 15 Teachers (11 subjects)")
+        print(f"  • 150 Parents")
+        print(f"  • 150 Students (45 high, 75 average, 30 at-risk)")
+        print(f"  • Classes 6-10 (30 students per class, 10 per section)")
+        print(f"  • ~19,500 Attendance records (6 months)")
+        print(f"  • ~9,900 Marks records (6 exams × 11 subjects × 150 students)")
+        print(f"  • ~1,125 Assignments")
+        print(f"  • 66 Learning resources (6 per subject)")
+        print(f"  • ~270 Alerts")
+        print(f"  • ~400 Achievements")
+        print(f"  • 150 Predictions")
+        print(f"  • ~600 Recommendations")
+        print(f"  • ~600 Career suggestions")
+        print(f"  • Total Users: 316 (1 admin + 15 teachers + 150 students + 150 parents)")
         
         print(f"\n🔑 Login Credentials:")
-        print(f"  Admin:   admin@school.com / Admin@123")
+        print(f"  Admin:   admin@school.edu / Admin@123")
         print(f"  Teacher: rajesh.kumar@school.com / Teacher@123")
         print(f"  Parent:  parent1@email.com / Parent@123")
         print(f"  Student: student1@school.com / Student@123")

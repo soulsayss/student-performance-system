@@ -51,33 +51,31 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(ml_bp, url_prefix='/api/ml')
     
-    # Create database tables and initialize admin user
+    # Create database tables and auto-seed on first deployment
     with app.app_context():
         db.create_all()
         print("Database tables created successfully!")
         
-        # Auto-initialize admin user on first deployment
+        # Auto-seed database on first deployment (only if empty)
         try:
-            admin = User.query.filter_by(email='admin@school.edu').first()
-            if not admin:
-                print("Creating initial admin user...")
-                admin = User(
-                    name='Administrator',
-                    email='admin@school.edu',
-                    role='admin',
-                    is_active=True
-                )
-                admin.set_password('Admin@123')
-                db.session.add(admin)
-                db.session.commit()
-                print("✓ Admin user created successfully!")
-                print("  Email: admin@school.edu")
-                print("  Password: Admin@123")
+            user_count = User.query.count()
+            
+            if user_count <= 1:  # Empty or only admin
+                print("\n" + "="*60)
+                print("🌱 DATABASE IS EMPTY - RUNNING AUTO-SEED SCRIPT")
+                print("="*60)
+                
+                # Import and run seed script
+                from utils.seed_database import main as seed_main
+                seed_main()
+                
+                print("\n✅ Auto-seeding completed successfully!")
             else:
-                print("✓ Admin user already exists")
+                print(f"✓ Database already populated with {user_count} users. Skipping seed.")
         except Exception as e:
-            print(f"Note: Could not auto-create admin user: {str(e)}")
-            print("You can create it manually using init_db.py")
+            print(f"⚠️ Database initialization: {str(e)}")
+            print("Note: You can manually seed the database using:")
+            print("  python utils/seed_database.py")
     
     @app.route('/')
     def index():
