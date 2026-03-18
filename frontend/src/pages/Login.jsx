@@ -38,9 +38,14 @@ const Login = () => {
           default:
             navigate('/')
         }
+      } else {
+        // Login failed but didn't throw error
+        toast.error(response.message || 'Login failed. Please check your credentials.')
       }
     } catch (error) {
       console.error('Login error:', error)
+      // Error toast is already shown by api interceptor
+      // Don't reset form - keep credentials visible
     } finally {
       setIsLoading(false)
     }
