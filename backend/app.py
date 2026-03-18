@@ -17,20 +17,21 @@ def create_app(config_class=Config):
     app.config['CACHE_TYPE'] = 'SimpleCache'  # Use 'RedisCache' for production
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
     
-    # CORS Configuration - Allow multiple origins
-    # Using wildcard for development, restrict in production
+    # CORS Configuration - Allow Vercel frontend
+    # Must be configured before registering blueprints
     CORS(app, 
          resources={
-             r"/api/*": {
+             r"/*": {
                  "origins": [
-                     'http://localhost:3000',
-                     'http://localhost:5000',
-                     'http://localhost:5173',
-                     'https://student-performance-system-kohl.vercel.app'
+                     "http://localhost:3000",
+                     "http://localhost:5000", 
+                     "http://localhost:5173",
+                     "https://student-performance-system-kohl.vercel.app"
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
                  "allow_headers": ["Content-Type", "Authorization"],
-                 "supports_credentials": True
+                 "supports_credentials": True,
+                 "expose_headers": ["Content-Type", "Authorization"]
              }
          }
     )
