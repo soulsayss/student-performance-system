@@ -98,15 +98,19 @@ def create_teachers():
     return teachers
 
 def create_parents():
-    """Create 60 parent users (1 per student)"""
+    """Create 60 parent users (1 per student) with guaranteed unique emails"""
     print("Creating 60 parents...")
     parents = []
+    used_emails = set()
     
     for i in range(1, 61):
+        # Generate unique email by using counter
         first_name = random.choice(FIRST_NAMES)
         last_name = random.choice(LAST_NAMES)
         name = f"{first_name} {last_name}"
-        email = f"{first_name.lower()}.{last_name.lower()}{i}@gmail.com"
+        
+        # Ensure unique email using counter
+        email = f"parent{i}@email.com"
         
         user = User(
             name=name,
@@ -123,7 +127,7 @@ def create_parents():
 
 
 def create_students(parents):
-    """Create 60 students across 3 classes (20 per class)"""
+    """Create 60 students across 3 classes (20 per class) with guaranteed unique emails"""
     print("Creating 60 students...")
     students = []
     
@@ -148,7 +152,9 @@ def create_students(parents):
                 # Create student with same last name as parent
                 first_name = random.choice(FIRST_NAMES)
                 name = f"{first_name} {parent_last_name}"
-                email = f"{first_name.lower()}.{parent_last_name.lower()}{student_counter}@gmail.com"
+                
+                # Use simple counter-based email to ensure uniqueness
+                email = f"student{student_counter}@school.com"
                 
                 user = User(
                     name=name,
@@ -783,8 +789,8 @@ def seed_all_data():
     print(f"  • amit.patel@school.com / Teacher@123 (History)")
     print(f"  • sneha.gupta@school.com / Teacher@123 (Social Science)")
     print(f"  • And 6 more subject teachers...")
-    print(f"\n  Parents: [firstname].[lastname][number]@gmail.com / Parent@123")
-    print(f"  Students: [firstname].[lastname][number]@gmail.com / Student@123")
+    print(f"\n  Parents: parent[1-60]@email.com / Parent@123")
+    print(f"  Students: student[1-60]@school.com / Student@123")
     
     print(f"\n✅ Database ready for use!")
     print("="*60 + "\n")
