@@ -146,7 +146,10 @@ def login():
         email = sanitize_input(data.get('email', ''), 120).lower()
         password = data.get('password', '')
         
+        print(f"[LOGIN] Attempt: {email}")
+        
         if not email or not password:
+            print(f"[LOGIN] Missing email or password")
             return jsonify({
                 'success': False,
                 'message': 'Email and password are required'
@@ -155,13 +158,26 @@ def login():
         # Find user
         user = User.query.filter_by(email=email).first()
         
-        if not user or not user.check_password(password):
+        if not user:
+            print(f"[LOGIN] User not found: {email}")
             return jsonify({
                 'success': False,
                 'message': 'Invalid email or password'
             }), 401
         
+        print(f"[LOGIN] User found: {user.email}, role: {user.role}, is_active: {user.is_active}")
+        
+        if not user.check_password(password):
+            print(f"[LOGIN] Password incorrect for: {email}")
+            return jsonify({
+                'success': False,
+                'message': 'Invalid email or password'
+            }), 401
+        
+        print(f"[LOGIN] Password correct for: {email}")
+        
         if not user.is_active:
+            print(f"[LOGIN] Account inactive: {email}")
             return jsonify({
                 'success': False,
                 'message': 'Account is inactive. Please contact administrator.'
@@ -179,6 +195,8 @@ def login():
         elif user.role == 'teacher' and user.teacher_profile:
             user_data['teacher_info'] = user.teacher_profile.to_dict()
         
+        print(f"[LOGIN] Success: {email}, role: {user.role}")
+        
         return jsonify({
             'success': True,
             'message': 'Login successful',
@@ -188,6 +206,9 @@ def login():
         }), 200
     
     except Exception as e:
+        print(f"[LOGIN] Exception: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'message': 'Login failed',

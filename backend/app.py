@@ -144,6 +144,30 @@ def create_app(config_class=Config):
                 'error': str(e)
             }, 500
     
+    @app.route('/api/debug/users', methods=['GET'])
+    def debug_users():
+        """Debug endpoint to show sample users (for development only)"""
+        try:
+            students = User.query.filter_by(role='student').limit(5).all()
+            parents = User.query.filter_by(role='parent').limit(5).all()
+            teachers = User.query.filter_by(role='teacher').limit(5).all()
+            
+            return {
+                'sample_students': [{'email': s.email, 'name': s.name} for s in students],
+                'sample_parents': [{'email': p.email, 'name': p.name} for p in parents],
+                'sample_teachers': [{'email': t.email, 'name': t.name} for t in teachers],
+                'total_users': {
+                    'students': User.query.filter_by(role='student').count(),
+                    'parents': User.query.filter_by(role='parent').count(),
+                    'teachers': User.query.filter_by(role='teacher').count(),
+                    'admins': User.query.filter_by(role='admin').count()
+                }
+            }, 200
+        except Exception as e:
+            return {
+                'error': str(e)
+            }, 500
+    
     @app.route('/api/admin/reset-database', methods=['POST'])
     def reset_database():
         """
