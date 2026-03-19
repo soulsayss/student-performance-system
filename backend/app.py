@@ -17,7 +17,7 @@ def create_app(config_class=Config):
     app.config['CACHE_TYPE'] = 'SimpleCache'  # Use 'RedisCache' for production
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
     
-    # CORS Configuration - Allow Vercel frontend
+    # CORS Configuration - Allow Vercel frontend and Railway
     # Must be configured before registering blueprints
     CORS(app, 
          resources={
@@ -27,7 +27,8 @@ def create_app(config_class=Config):
                      "http://localhost:5000", 
                      "http://localhost:5173",
                      "https://student-performance-system-kohl.vercel.app",
-                     "https://student-performance-system-soulsayss-projects.vercel.app"
+                     "https://student-performance-system-soulsayss-projects.vercel.app",
+                     "https://*.railway.app"  # Allow Railway domains
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
                  "allow_headers": ["Content-Type", "Authorization"],
