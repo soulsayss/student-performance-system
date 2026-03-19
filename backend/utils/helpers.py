@@ -12,85 +12,36 @@ from models import db, Student, Attendance, Marks, Prediction, Alert, Resource, 
 
 def detect_at_risk_students():
     """
-    OPTIMIZED: Detect students at risk based on:
-    - Attendance < 75%
-    - Predicted risk = high
-    - Declining performance
-    
+    SIMPLIFIED: Detect students at risk based on predictions only
     Returns: List of at-risk student IDs with reasons
-    Uses database aggregation to prevent memory overflow
     """
-    at_risk_students = []
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)  # Reduced from 180 to 30 days
-    
-    # OPTIMIZATION: Use database aggregation for attendance
-    # Get students with low attendance using subquery
-    low_attendance_subquery = db.session.query(
-        Attendance.student_id,
-        func.count(Attendance.attendance_id).label('total'),
-        func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present')
-    ).filter(
-        Attendance.date >= thirty_days_ago.date()
-    ).group_by(Attendance.student_id).subquery()
-    
-    low_attendance_students = db.session.query(
-        low_attendance_subquery.c.student_id,
-        low_attendance_subquery.c.present,
-        low_attendance_subquery.c.total
-    ).filter(
-        (low_attendance_subquery.c.present * 100.0 / low_attendance_subquery.c.total) < 75
-    ).all()
-    
-    # Create dict for quick lookup
-    low_attendance_dict = {
-        s.student_id: (s.present * 100.0 / s.total) 
-        for s in low_attendance_students
-    }
-    
-    # Get students with high risk predictions
-    high_risk_predictions = db.session.query(
-        Prediction.student_id,
-        Prediction.predicted_grade
-    ).filter(
-        Prediction.risk_level == 'high'
-    ).distinct(Prediction.student_id).all()
-    
-    high_risk_dict = {p.student_id: p.predicted_grade for p in high_risk_predictions}
-    
-    # Get all at-risk student IDs
-    at_risk_ids = set(low_attendance_dict.keys()) | set(high_risk_dict.keys())
-    
-    # Load only at-risk students with their user data
-    if at_risk_ids:
-        from sqlalchemy.orm import joinedload
-        at_risk_student_objs = Student.query.options(
-            joinedload(Student.user)
-        ).filter(Student.student_id.in_(at_risk_ids)).all()
+    try:
+        at_risk_students = []
         
-        for student in at_risk_student_objs:
-            risk_factors = []
-            
-            # Check attendance
-            if student.student_id in low_attendance_dict:
-                attendance_pct = low_attendance_dict[student.student_id]
-                risk_factors.append(f'Low attendance: {attendance_pct:.1f}%')
-            
-            # Check prediction risk level
-            if student.student_id in high_risk_dict:
-                predicted_grade = high_risk_dict[student.student_id]
-                risk_factors.append(f'High risk prediction: {predicted_grade}')
-            
-            at_risk_students.append({
-                'student_id': student.student_id,
-                'name': student.user.name,
-                'roll_number': student.roll_number,
-                'class_name': student.class_name,
-                'section': student.section,
-                'risk_factors': risk_factors,
-                'reason': ', '.join(risk_factors)
-            })
-    
-    return at_risk_students
+        # Get students with high risk predictions (simplest approach)
+        high_risk_predictions = Prediction.query.filter_by(risk_level='high').all()
+        
+        for prediction in high_risk_predictions:
+            try:
+                student = Student.query.get(prediction.student_id)
+                if student and student.user:
+                    at_risk_students.append({
+                        'student_id': student.student_id,
+                        'name': student.user.name,
+                        'roll_number': student.roll_number,
+                        'class_name': student.class_name,
+                        'section': student.section,
+                        'risk_factors': [f'High risk prediction: {prediction.predicted_grade}'],
+                        'reason': f'High risk prediction: {prediction.predicted_grade}'
+                    })
+            except Exception as e:
+                print(f"Error processing student {prediction.student_id}: {e}")
+                continue
+        
+        return at_risk_students
+    except Exception as e:
+        print(f"Error in detect_at_risk_students: {e}")
+        return []
 
 
 def generate_alert_for_student(student_id, message, severity='warning'):
