@@ -124,6 +124,26 @@ def create_app(config_class=Config):
     def health():
         return {'status': 'healthy'}
     
+    @app.route('/api/health', methods=['GET'])
+    def api_health():
+        """Health check endpoint for frontend"""
+        try:
+            # Test database connection
+            user_count = User.query.count()
+            return {
+                'status': 'ok',
+                'message': 'Backend is running',
+                'database': 'connected',
+                'total_users': user_count
+            }, 200
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': 'Backend error',
+                'database': 'disconnected',
+                'error': str(e)
+            }, 500
+    
     @app.route('/api/admin/reset-database', methods=['POST'])
     def reset_database():
         """
