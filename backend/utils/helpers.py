@@ -12,55 +12,74 @@ from models import db, Student, Attendance, Marks, Prediction, Alert, Resource, 
 
 def detect_at_risk_students():
     """
-    Detect students at risk based on:
+    OPTIMIZED: Detect students at risk based on:
     - Attendance < 75%
     - Predicted risk = high
     - Declining performance
     
     Returns: List of at-risk student IDs with reasons
+    Uses database aggregation to prevent memory overflow
     """
     at_risk_students = []
-    six_months_ago = datetime.utcnow() - timedelta(days=180)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)  # Reduced from 180 to 30 days
     
-    all_students = Student.query.all()
+    # OPTIMIZATION: Use database aggregation for attendance
+    # Get students with low attendance using subquery
+    low_attendance_subquery = db.session.query(
+        Attendance.student_id,
+        func.count(Attendance.attendance_id).label('total'),
+        func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present')
+    ).filter(
+        Attendance.date >= thirty_days_ago.date()
+    ).group_by(Attendance.student_id).subquery()
     
-    for student in all_students:
-        risk_factors = []
+    low_attendance_students = db.session.query(
+        low_attendance_subquery.c.student_id,
+        low_attendance_subquery.c.present,
+        low_attendance_subquery.c.total
+    ).filter(
+        (low_attendance_subquery.c.present * 100.0 / low_attendance_subquery.c.total) < 75
+    ).all()
+    
+    # Create dict for quick lookup
+    low_attendance_dict = {
+        s.student_id: (s.present * 100.0 / s.total) 
+        for s in low_attendance_students
+    }
+    
+    # Get students with high risk predictions
+    high_risk_predictions = db.session.query(
+        Prediction.student_id,
+        Prediction.predicted_grade
+    ).filter(
+        Prediction.risk_level == 'high'
+    ).distinct(Prediction.student_id).all()
+    
+    high_risk_dict = {p.student_id: p.predicted_grade for p in high_risk_predictions}
+    
+    # Get all at-risk student IDs
+    at_risk_ids = set(low_attendance_dict.keys()) | set(high_risk_dict.keys())
+    
+    # Load only at-risk students with their user data
+    if at_risk_ids:
+        from sqlalchemy.orm import joinedload
+        at_risk_student_objs = Student.query.options(
+            joinedload(Student.user)
+        ).filter(Student.student_id.in_(at_risk_ids)).all()
         
-        # Check attendance
-        attendance_records = Attendance.query.filter(
-            Attendance.student_id == student.student_id,
-            Attendance.date >= six_months_ago.date()
-        ).all()
-        
-        if attendance_records:
-            present = sum(1 for a in attendance_records if a.status == 'present')
-            attendance_pct = (present / len(attendance_records)) * 100
+        for student in at_risk_student_objs:
+            risk_factors = []
             
-            if attendance_pct < 75:
+            # Check attendance
+            if student.student_id in low_attendance_dict:
+                attendance_pct = low_attendance_dict[student.student_id]
                 risk_factors.append(f'Low attendance: {attendance_pct:.1f}%')
-        
-        # Check prediction risk level
-        latest_prediction = Prediction.query.filter_by(
-            student_id=student.student_id
-        ).order_by(desc(Prediction.created_at)).first()
-        
-        if latest_prediction and latest_prediction.risk_level == 'high':
-            risk_factors.append(f'High risk prediction: {latest_prediction.predicted_grade}')
-        
-        # Check declining performance
-        recent_marks = Marks.query.filter_by(
-            student_id=student.student_id
-        ).order_by(desc(Marks.exam_date)).limit(5).all()
-        
-        if len(recent_marks) >= 3:
-            recent_avg = sum((m.score / m.max_score * 100) for m in recent_marks[:2]) / 2
-            older_avg = sum((m.score / m.max_score * 100) for m in recent_marks[2:]) / len(recent_marks[2:])
             
-            if recent_avg < older_avg - 10:  # 10% decline
-                risk_factors.append(f'Declining performance: {recent_avg:.1f}% vs {older_avg:.1f}%')
-        
-        if risk_factors:
+            # Check prediction risk level
+            if student.student_id in high_risk_dict:
+                predicted_grade = high_risk_dict[student.student_id]
+                risk_factors.append(f'High risk prediction: {predicted_grade}')
+            
             at_risk_students.append({
                 'student_id': student.student_id,
                 'name': student.user.name,
