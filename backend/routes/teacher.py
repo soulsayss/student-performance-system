@@ -25,10 +25,13 @@ def get_current_teacher():
 @jwt_required()
 def get_dashboard():
     """
-    GET /api/teacher/dashboard
+    GET /api/teacher/dashboard?days=30
     Returns: class overview, total students, at-risk count
     - Class teachers: ONLY students in their assigned class (20 students)
     - Subject teachers: ALL students across all classes (60 students)
+    OPTIMIZED: Uses query parameters for date range
+    Query params:
+    - days: Number of days to look back (default: 30, max: 180)
     """
     try:
         user = get_current_teacher()
@@ -40,6 +43,12 @@ def get_dashboard():
             }), 404
         
         teacher = user.teacher_profile
+        
+        # Get days parameter, default to 30
+        days = request.args.get('days', 30, type=int)
+        days = min(max(days, 7), 180)  # Min 7, max 180
+        
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
         
         # Determine teacher type and filter students accordingly
         if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
@@ -56,51 +65,67 @@ def get_dashboard():
         
         students = students_query.all()
         total_students = len(students)
+        student_ids = [s.student_id for s in students]
         
-        # Calculate at-risk students (attendance < 75% or average marks < 50%)
+        # OPTIMIZATION: Calculate at-risk using database aggregation
         at_risk_count = 0
-        six_months_ago = datetime.utcnow() - timedelta(days=180)
         
-        for student in students:
-            # Check attendance
-            attendance_records = Attendance.query.filter(
-                Attendance.student_id == student.student_id,
-                Attendance.date >= six_months_ago.date()
+        if student_ids:
+            # Count students with low attendance using subquery
+            low_attendance_subquery = db.session.query(
+                Attendance.student_id,
+                func.count(Attendance.attendance_id).label('total'),
+                func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present')
+            ).filter(
+                Attendance.student_id.in_(student_ids),
+                Attendance.date >= cutoff_date.date()
+            ).group_by(Attendance.student_id).subquery()
+            
+            low_attendance_students = db.session.query(
+                low_attendance_subquery.c.student_id
+            ).filter(
+                (low_attendance_subquery.c.present * 100.0 / low_attendance_subquery.c.total) < 75
             ).all()
             
-            if attendance_records:
-                present = sum(1 for a in attendance_records if a.status == 'present')
-                attendance_pct = (present / len(attendance_records)) * 100
-                
-                if attendance_pct < 75:
-                    at_risk_count += 1
-                    continue
+            # Count students with low marks using subquery
+            low_marks_subquery = db.session.query(
+                Marks.student_id,
+                func.avg(Marks.score / Marks.max_score * 100).label('avg_percentage')
+            ).filter(
+                Marks.student_id.in_(student_ids),
+                Marks.max_score > 0
+            ).group_by(Marks.student_id).subquery()
             
-            # Check marks
-            marks = Marks.query.filter_by(student_id=student.student_id).all()
-            if marks:
-                avg_percentage = sum((m.score / m.max_score * 100) for m in marks if m.max_score > 0) / len(marks)
-                if avg_percentage < 50:
-                    at_risk_count += 1
+            low_marks_students = db.session.query(
+                low_marks_subquery.c.student_id
+            ).filter(
+                low_marks_subquery.c.avg_percentage < 50
+            ).all()
+            
+            # Combine unique at-risk students
+            at_risk_ids = set([s[0] for s in low_attendance_students] + [s[0] for s in low_marks_students])
+            at_risk_count = len(at_risk_ids)
         
-        # Get recent attendance stats for filtered students
+        # Get today's attendance stats
         today = datetime.utcnow().date()
-        student_ids = [s.student_id for s in students]
-        today_attendance = Attendance.query.filter(
-            Attendance.date == today,
-            Attendance.student_id.in_(student_ids)
-        ).all() if student_ids else []
-        present_today = sum(1 for a in today_attendance if a.status == 'present')
+        present_today = 0
+        if student_ids:
+            present_today = Attendance.query.filter(
+                Attendance.date == today,
+                Attendance.student_id.in_(student_ids),
+                Attendance.status == 'present'
+            ).count()
         
-        # Get class average for filtered students
-        all_marks = Marks.query.filter(
-            Marks.student_id.in_(student_ids)
-        ).all() if student_ids else []
-        
-        if all_marks:
-            class_average = sum((m.score / m.max_score * 100) for m in all_marks if m.max_score > 0) / len(all_marks)
-        else:
-            class_average = 0
+        # Get class average using aggregation
+        class_average = 0
+        if student_ids:
+            avg_result = db.session.query(
+                func.avg(Marks.score / Marks.max_score * 100)
+            ).filter(
+                Marks.student_id.in_(student_ids),
+                Marks.max_score > 0
+            ).scalar()
+            class_average = round(avg_result, 2) if avg_result else 0
         
         return jsonify({
             'success': True,
@@ -108,8 +133,9 @@ def get_dashboard():
                 'total_students': total_students,
                 'at_risk_students': at_risk_count,
                 'present_today': present_today,
-                'class_average': round(class_average, 2),
+                'class_average': class_average,
                 'teacher_type': teacher_type,
+                'days_range': days,
                 'teacher_info': {
                     'name': user.name,
                     'subject': teacher.subject,
@@ -133,15 +159,15 @@ def get_dashboard():
 @jwt_required()
 def get_students():
     """
-    GET /api/teacher/students
+    GET /api/teacher/students?days=30
     Returns: students based on teacher type
     - Class teachers: ONLY students in their assigned class (20 students)
     - Subject teachers: ALL students across all classes (60 students)
-    OPTIMIZED: Uses eager loading to prevent N+1 queries
+    OPTIMIZED: Uses query parameters for date range to prevent memory overflow
+    Query params:
+    - days: Number of days to look back for attendance (default: 30, max: 180)
     """
     try:
-        from app import cache
-        
         user = get_current_teacher()
         
         if not user or not user.teacher_profile:
@@ -152,13 +178,15 @@ def get_students():
         
         teacher = user.teacher_profile
         
-        # OPTIMIZATION: Use eager loading to load all related data in one query
-        students_query = Student.query.options(
-            joinedload(Student.user),
-            joinedload(Student.attendance_records),
-            joinedload(Student.marks),
-            joinedload(Student.predictions)
-        )
+        # Get days parameter from query string, default to 30
+        days = request.args.get('days', 30, type=int)
+        # Limit maximum to prevent memory issues
+        days = min(max(days, 7), 180)  # Min 7 days, max 180 days
+        
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        
+        # OPTIMIZATION: Load only user data with students, no heavy relationships
+        students_query = Student.query.options(joinedload(Student.user))
         
         # Filter based on teacher type
         if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
@@ -175,16 +203,17 @@ def get_students():
         students = students_query.all()
         
         students_data = []
-        six_months_ago = datetime.utcnow() - timedelta(days=180)
         
         for student in students:
             student_dict = student.to_dict()
             student_dict['name'] = student.user.name
             student_dict['email'] = student.user.email
             
-            # Calculate attendance percentage (data already loaded)
-            attendance_records = [a for a in student.attendance_records 
-                                 if a.date >= six_months_ago.date()]
+            # OPTIMIZATION: Query only recent attendance with date filter
+            attendance_records = Attendance.query.filter(
+                Attendance.student_id == student.student_id,
+                Attendance.date >= cutoff_date.date()
+            ).all()
             
             if attendance_records:
                 present = sum(1 for a in attendance_records if a.status == 'present')
@@ -192,16 +221,21 @@ def get_students():
             else:
                 student_dict['attendance_percentage'] = 0
             
-            # Calculate average marks (data already loaded)
-            marks = student.marks
-            if marks:
-                avg = sum((m.score / m.max_score * 100) for m in marks if m.max_score > 0) / len(marks)
-                student_dict['average_marks'] = round(avg, 2)
-            else:
-                student_dict['average_marks'] = 0
+            # OPTIMIZATION: Calculate average from database aggregation instead of loading all marks
+            avg_result = db.session.query(
+                func.avg(Marks.score / Marks.max_score * 100)
+            ).filter(
+                Marks.student_id == student.student_id,
+                Marks.max_score > 0
+            ).scalar()
             
-            # Get latest prediction (data already loaded)
-            prediction = student.predictions[0] if student.predictions else None
+            student_dict['average_marks'] = round(avg_result, 2) if avg_result else 0
+            
+            # Get latest prediction without loading all predictions
+            prediction = Prediction.query.filter_by(
+                student_id=student.student_id
+            ).order_by(desc(Prediction.created_at)).first()
+            
             student_dict['risk_level'] = prediction.risk_level if prediction else 'unknown'
             
             students_data.append(student_dict)
@@ -210,7 +244,8 @@ def get_students():
             'success': True,
             'students': students_data,
             'total': len(students_data),
-            'teacher_type': teacher_type
+            'teacher_type': teacher_type,
+            'days_range': days
         }), 200
     
     except Exception as e:
