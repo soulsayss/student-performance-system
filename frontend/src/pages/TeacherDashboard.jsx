@@ -117,6 +117,16 @@ const TeacherDashboard = () => {
           </h1>
           <p className="text-gray-600 dark:text-dark-text-secondary mt-1 transition-colors duration-200">
             {dashboard?.teacher_info?.subject} - {dashboard?.teacher_info?.department}
+            {dashboard?.teacher_info?.is_class_teacher && dashboard?.teacher_info?.assigned_class && (
+              <span className="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded">
+                Class Teacher: {dashboard.teacher_info.assigned_class}{dashboard.teacher_info.assigned_section}
+              </span>
+            )}
+            {!dashboard?.teacher_info?.is_class_teacher && (
+              <span className="ml-2 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded">
+                Subject Teacher
+              </span>
+            )}
           </p>
         </div>
 
@@ -127,7 +137,9 @@ const TeacherDashboard = () => {
             value={dashboard?.total_students || 0}
             icon={Users}
             color="primary"
-            subtitle="In your classes"
+            subtitle={dashboard?.teacher_info?.is_class_teacher 
+              ? `In your class (${dashboard?.teacher_info?.assigned_class}${dashboard?.teacher_info?.assigned_section})`
+              : "Across all classes"}
           />
           <StatCard
             title="Present Today"

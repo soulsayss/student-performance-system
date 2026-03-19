@@ -23,67 +23,73 @@ python utils/seed_database.py
 
 | Category | Count | Details |
 |----------|-------|---------|
-| **Users** | 131 | 1 Admin, 10 Teachers, 20 Parents, 100 Students |
-| **Attendance** | ~13,000 | 6 months of daily records |
-| **Marks** | 3,600 | 6 exams × 6 subjects × 100 students |
-| **Assignments** | ~775 | 5-10 per student |
-| **Resources** | 51 | Learning materials across all subjects |
-| **Alerts** | ~179 | Notifications for students |
-| **Achievements** | ~178 | Badges for top performers |
-| **Predictions** | 100 | ML predictions for all students |
-| **Recommendations** | ~339 | Personalized learning resources |
-| **Career Suggestions** | ~390 | 3-5 per student |
+| **Users** | 132 | 1 Admin, 11 Teachers, 60 Parents, 60 Students |
+| **Attendance** | ~7,800 | 6 months of daily records (130 school days × 60 students) |
+| **Marks** | 3,960 | 6 exams × 11 subjects × 60 students |
+| **Assignments** | ~450 | 5-10 per student |
+| **Resources** | 66 | 6 learning materials per subject × 11 subjects |
+| **Alerts** | ~108 | Notifications for students |
+| **Achievements** | ~160 | Badges for top performers |
+| **Predictions** | 60 | ML predictions for all students |
+| **Recommendations** | ~240 | Personalized learning resources |
+| **Career Suggestions** | ~240 | 3-5 per student |
 
-**Total Records:** ~18,700+
+**Total Records:** ~13,000+
 
 ---
 
 ## Student Distribution
 
 ### Performance Categories
-- **High Performers:** 30 students (30%)
+- **High Performers:** 18 students (30%)
   - Attendance: 95-100%
   - Marks: 85-100%
   - Predicted Grades: A+, A
   - Risk Level: Low
 
-- **Average Performers:** 50 students (50%)
+- **Average Performers:** 30 students (50%)
   - Attendance: 75-85%
   - Marks: 65-85%
   - Predicted Grades: B+, B, C+
   - Risk Level: Low
 
-- **At-Risk Students:** 20 students (20%)
+- **At-Risk Students:** 12 students (20%)
   - Attendance: 30-60%
   - Marks: 35-65%
   - Predicted Grades: C, D, F
   - Risk Level: Medium/High
 
 ### Demographics
-- **Classes:** 9, 10, 11, 12
-- **Sections:** A, B, C, D
-- **Age Range:** 14-18 years
+- **Classes:** 8, 9, 10
+- **Sections:** A (one section per class)
+- **Students per Class:** 20
+- **Age Range:** 13-16 years (based on class)
 - **Gender:** Mixed (Male/Female)
-- **Parent Assignment:** 90% have assigned parents
+- **Parent Assignment:** 100% have assigned parents (1 per student)
 
 ---
 
 ## Teachers
 
-### 10 Teachers Created
+### 11 Teachers Created
 
-| Name | Subject | Department | Employee ID |
-|------|---------|------------|-------------|
-| Dr. Rajesh Kumar | Mathematics | Science | TCH001 |
-| Prof. Priya Sharma | Physics | Science | TCH002 |
-| Dr. Amit Patel | Chemistry | Science | TCH003 |
-| Ms. Sneha Gupta | Biology | Science | TCH004 |
-| Mr. Vikram Singh | English | Languages | TCH005 |
-| Mrs. Kavita Reddy | Hindi | Languages | TCH006 |
-| Mr. Arjun Nair | Computer Science | Technology | TCH007 |
-| Dr. Meera Iyer | History | Social Studies | TCH008 |
-| Prof. Suresh Joshi | Geography | Social Studies | TCH009 |
-| Ms. Anjali Mehta | Economics | Commerce | TCH010 |
+| Name | Subject | Type | Assigned Class | Employee ID |
+|------|---------|------|----------------|-------------|
+| Dr. Rajesh Kumar | Science | Class Teacher | 8A | TCH001 |
+| Prof. Priya Sharma | Mathematics | Class Teacher | 9A | TCH002 |
+| Mr. Rohit Verma | Sports | Class Teacher | 10A | TCH003 |
+| Mr. Amit Patel | History | Subject Teacher | All Classes | TCH004 |
+| Ms. Sneha Gupta | Social Science | Subject Teacher | All Classes | TCH005 |
+| Dr. Vikram Singh | Geography | Subject Teacher | All Classes | TCH006 |
+| Mrs. Kavita Reddy | Hindi | Subject Teacher | All Classes | TCH007 |
+| Mr. Arjun Nair | English | Subject Teacher | All Classes | TCH008 |
+| Ms. Anjali Mehta | Music | Subject Teacher | All Classes | TCH009 |
+| Dr. Meera Iyer | Additional Language | Subject Teacher | All Classes | TCH010 |
+| Ms. Zara Khan | Arts/Drawing | Subject Teacher | All Classes | TCH011 |
+
+**Teacher Types:**
+- **Class Teachers (3)**: Manage a specific class, see only their 20 students
+- **Subject Teachers (8)**: Teach across all classes, see all 60 students
 
 ---
 
@@ -92,7 +98,7 @@ python utils/seed_database.py
 ### 6 Months of Records
 - **Period:** Last 180 days
 - **School Days:** Monday to Friday only
-- **Total Records:** ~13,000 (130 days × 100 students)
+- **Total Records:** ~7,800 (130 school days × 60 students)
 
 ### Status Distribution by Category
 - **High Performers:** 95% present, 3% absent, 2% late
@@ -112,14 +118,19 @@ python utils/seed_database.py
 6. **Final Exam** (100 marks) - 10 days ago
 
 ### Subjects
+- Science
 - Mathematics
-- Physics
-- Chemistry
-- Biology
-- English
+- History
+- Social Science
+- Geography
 - Hindi
+- English
+- Sports
+- Music
+- Additional Language
+- Arts/Drawing
 
-**Total:** 6 exams × 6 subjects × 100 students = 3,600 marks records
+**Total:** 6 exams × 11 subjects × 60 students = 3,960 marks records
 
 ---
 
@@ -297,15 +308,24 @@ Each student gets 3-5 career suggestions ranked by match percentage.
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@school.com | Admin@123 |
-| **Teacher** | rajesh.kumar@school.com | Teacher@123 |
-| **Parent** | parent1@email.com | Parent@123 |
-| **Student** | student1@school.com | Student@123 |
+| **Admin** | admin@school.edu | Admin@123 |
+| **Class Teacher (8A)** | rajesh.kumar@school.com | Teacher@123 |
+| **Class Teacher (9A)** | priya.sharma@school.com | Teacher@123 |
+| **Class Teacher (10A)** | rohit.verma@school.com | Teacher@123 |
+| **Subject Teacher** | amit.patel@school.com | Teacher@123 |
+| **Parent** | parent1@gmail.com | Parent@123 |
+| **Student** | student1@gmail.com | Student@123 |
 
-**Note:** All teachers, parents, and students follow the same password pattern:
+**Note:** All credentials follow the same password pattern:
 - Teachers: `Teacher@123`
-- Parents: `Parent@123`
-- Students: `Student@123`
+- Parents: `Parent@123` (parent1-60@gmail.com)
+- Students: `Student@123` (student1-60@gmail.com)
+
+**Email Formats:**
+- Admin: `admin@school.edu`
+- Teachers: `firstname.lastname@school.com`
+- Parents: `parent[N]@gmail.com` (N = 1 to 60)
+- Students: `student[N]@gmail.com` (N = 1 to 60)
 
 ---
 

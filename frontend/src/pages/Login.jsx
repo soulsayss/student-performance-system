@@ -1,16 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { login } from '../services/authService'
+import { login, isAuthenticated, getUserRole } from '../services/authService'
 
 const Login = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
   
   const { register, handleSubmit, formState: { errors } } = useForm()
+
+  // Check if user is already authenticated on mount
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const role = getUserRole()
+      // Redirect immediately if already logged in
+      navigate(`/${role}/dashboard`, { replace: true })
+    } else {
+      setCheckingAuth(false)
+    }
+  }, [navigate])
 
   const onSubmit = async (data) => {
     setIsLoading(true)
@@ -20,35 +32,30 @@ const Login = () => {
       if (response.success) {
         toast.success('Login successful!')
         
-        // Redirect based on role
+        // Single redirect based on role
         const role = response.user.role
-        switch (role) {
-          case 'student':
-            navigate('/student/dashboard')
-            break
-          case 'teacher':
-            navigate('/teacher/dashboard')
-            break
-          case 'parent':
-            navigate('/parent/dashboard')
-            break
-          case 'admin':
-            navigate('/admin/dashboard')
-            break
-          default:
-            navigate('/')
-        }
+        navigate(`/${role}/dashboard`, { replace: true })
       } else {
-        // Login failed but didn't throw error
         toast.error(response.message || 'Login failed. Please check your credentials.')
       }
     } catch (error) {
       console.error('Login error:', error)
       // Error toast is already shown by api interceptor
-      // Don't reset form - keep credentials visible
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Show loading while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -31,16 +31,16 @@ The new code with the reset endpoint is deploying to Render right now. Wait for:
 ### Step 4: Verify Success
 You should see a success message with:
 - ✅ Database reset and reseeded successfully
-- Total users: 54
+- Total users: 132 (1 admin + 11 teachers + 60 students + 60 parents)
 - New credentials listed
 
 ### Step 5: Test Teacher Dashboard
-1. Go to: https://student-performance-system-kohl.vercel.app/login
+1. Go to your frontend URL
 2. Login with: `rajesh.kumar@school.com` / `Teacher@123`
 3. You should see:
-   - Total Students: **9** (not 75!)
-   - Class 6 - Section A
-   - 9 students in the table
+   - Total Students: **20** (Class 8A only)
+   - Badge: "Class Teacher: 8A"
+   - 20 students in the table
    - No CORS errors
 
 ---
@@ -104,10 +104,10 @@ curl -X POST https://student-performance-backend-rsga.onrender.com/api/admin/res
 2. **Creates fresh tables** - Recreates database structure
 3. **Seeds new data**:
    - 1 Admin
-   - 3 Teachers (with class assignments)
-   - 25 Students (3 classes, 1 section each)
-   - 25 Parents
-   - ~5,500 records (attendance, marks, etc.)
+   - 11 Teachers (3 class teachers + 8 subject teachers)
+   - 60 Students (3 classes: 8A, 9A, 10A - 20 students each)
+   - 60 Parents (1 per student)
+   - ~12,000+ records (attendance, marks, assignments, etc.)
 
 ---
 
@@ -117,26 +117,35 @@ curl -X POST https://student-performance-backend-rsga.onrender.com/api/admin/res
 - Email: `admin@school.edu`
 - Password: `Admin@123`
 
-### Teachers (3 total)
-1. **Dr. Rajesh Kumar** (Class 6A - 9 students)
+### Class Teachers (3 total - see only their 20 assigned students)
+1. **Dr. Rajesh Kumar** (Class 8A - Science)
    - Email: `rajesh.kumar@school.com`
    - Password: `Teacher@123`
 
-2. **Prof. Priya Sharma** (Class 7A - 8 students)
+2. **Prof. Priya Sharma** (Class 9A - Mathematics)
    - Email: `priya.sharma@school.com`
    - Password: `Teacher@123`
 
-3. **Mr. Rohit Verma** (Class 8A - 8 students)
+3. **Mr. Rohit Verma** (Class 10A - Sports)
    - Email: `rohit.verma@school.com`
    - Password: `Teacher@123`
 
-### Students (25 total)
-- Emails: `student1@school.com` to `student25@school.com`
-- Password: `Student@123`
+### Subject Teachers (8 total - see all 60 students)
+- `amit.patel@school.com` (History)
+- `sneha.gupta@school.com` (Social Science)
+- `vikram.singh@school.com` (Geography)
+- `kavita.reddy@school.com` (Hindi)
+- `arjun.nair@school.com` (English)
+- `anjali.mehta@school.com` (Music)
+- `meera.iyer@school.com` (Additional Language)
+- `zara.khan@school.com` (Arts/Drawing)
+- All passwords: `Teacher@123`
 
-### Parents (25 total)
-- Emails: `parent1@email.com` to `parent25@email.com`
-- Password: `Parent@123`
+### Students & Parents (60 pairs)
+- Format: `firstname.lastname@gmail.com`
+- Parent and student share the same last name
+- See `LOGIN_CREDENTIALS.md` for complete list
+- All passwords: `Student@123` / `Parent@123`
 
 ---
 
@@ -156,17 +165,20 @@ curl -X POST https://student-performance-backend-rsga.onrender.com/api/admin/res
 - Backend might be out of memory
 - Try again in a few minutes
 
-### Reset Succeeds but Teacher Dashboard Still Shows 75 Students
+### Reset Succeeds but Teacher Dashboard Shows Wrong Student Count
 - Clear browser cache (Ctrl+Shift+Delete)
 - Hard refresh (Ctrl+Shift+R)
 - Try in incognito/private window
+- Class teachers should see 20 students
+- Subject teachers should see 60 students
 
 ---
 
 ## Expected Results After Reset
 
-✅ **Memory Usage**: ~100-150MB (down from ~250-300MB)
-✅ **Teacher Dashboard**: Shows 8-9 students (not 75)
+✅ **Total Users**: 132 (1 admin + 11 teachers + 60 students + 60 parents)
+✅ **Class Teachers**: See 20 students (their assigned class only)
+✅ **Subject Teachers**: See 60 students (all classes)
 ✅ **No CORS Errors**: All API calls succeed
 ✅ **All Dashboards Work**: Admin, Student, Parent, Teacher
 

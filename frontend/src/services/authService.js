@@ -2,6 +2,11 @@ import api from './api'
 
 // Login
 export const login = async (email, password) => {
+  // Clear any existing auth data before new login
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  localStorage.removeItem('userRole')
+  
   const response = await api.post('/auth/login', { email, password })
   
   if (response.data.success) {
@@ -31,10 +36,13 @@ export const logout = () => {
   } catch (error) {
     console.error('Logout error:', error)
   } finally {
-    // Clear localStorage
+    // Clear all localStorage data
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('userRole')
+    
+    // Redirect to login
+    window.location.href = '/login'
   }
 }
 

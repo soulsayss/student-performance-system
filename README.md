@@ -56,11 +56,13 @@ An AI-powered system to predict student academic performance, identify at-risk s
 
 ## 📈 Key Metrics
 
-- **75+** Students managed
+- **60** Students across 3 classes (8A, 9A, 10A)
+- **11** Teachers (3 class teachers + 8 subject teachers)
+- **11** Subjects per student
 - **85%** ML prediction accuracy
-- **96%** Time saved on data entry
-- **1000%** ROI in first year
-- **93/93** Tests passed (74.3% coverage)
+- **132** Total users (1 admin + 11 teachers + 60 students + 60 parents)
+- **~7,800** Attendance records (6 months of data)
+- **~3,960** Marks records across all subjects
 
 ## 🚀 Quick Start
 
@@ -82,10 +84,10 @@ cd student-academic-system
 ```bash
 cd backend
 pip install -r requirements.txt
-python seed_data.py
+python utils/seed_database.py
 python app.py
 ```
-Backend will run on `http://localhost:5000`
+Backend will run on `http://127.0.0.1:5000`
 
 3. **Set up Frontend** (in a new terminal)
 ```bash
@@ -96,8 +98,9 @@ npm run dev
 Frontend will run on `http://localhost:3000`
 
 4. **Access the Application**
-- Open your browser and go to `http://localhost:3000`
-- Default admin credentials: `admin@school.com` / `admin123`
+- Open your browser and go to `http://localhost:5173` (Vite default port)
+- Default admin credentials: `admin@school.edu` / `Admin@123`
+- See [LOGIN_CREDENTIALS.md](LOGIN_CREDENTIALS.md) for all test accounts
 
 ## 📖 Usage
 
@@ -109,6 +112,8 @@ Frontend will run on `http://localhost:3000`
 
 
 ### For Teachers
+- **Class Teachers**: Manage and view only their assigned class (20 students)
+- **Subject Teachers**: View all students across all classes (60 students)
 - Upload marks via CSV (bulk import)
 - View class analytics and reports
 - Identify at-risk students
@@ -176,10 +181,10 @@ student-academic-system/
 Run backend tests:
 ```bash
 cd backend
-python -m pytest test_system.py -v
+python test_system.py
 ```
 
-**Test Results:** 93/93 tests passed ✓ (74.3% code coverage)
+The system includes comprehensive test data with realistic scenarios for all user roles.
 
 ## 🔒 Security Features
 
@@ -192,17 +197,18 @@ python -m pytest test_system.py -v
 ## 🌟 Highlights
 
 - **Production-Ready**: Comprehensive error handling and validation
-- **Scalable**: Supports 100+ concurrent users
-- **Well-Tested**: 93 passing tests with 74.3% coverage
-- **Documented**: Complete API documentation included
+- **Role-Based Access**: Different views for class teachers vs subject teachers
+- **Smart Email Format**: Parent-child relationships indicated by shared last names
+- **Realistic Data**: 6 months of attendance, marks across 11 subjects
+- **Documented**: Complete API documentation and credentials included
 - **Modern UI**: Responsive design with dark mode support
 
 ## 📚 Documentation
 
-- [API Documentation](backend/API_DOCUMENTATION.md)
-- [Quick Start Guide](QUICK_START.md)
-- [CSV Import Guide](CSV_IMPORT_GUIDE.md)
-- [Performance Optimization](PERFORMANCE_BOOST.md)
+- [Login Credentials](LOGIN_CREDENTIALS.md) - All test account credentials
+- [API Documentation](backend/API_DOCUMENTATION.md) - Complete API reference
+- [Seed Data Documentation](backend/SEED_DATA_DOCUMENTATION.md) - Database structure
+- [Easy Reset Instructions](EASY_RESET_INSTRUCTIONS.md) - Database reset guide
 
 ## 🤝 Contributing
 

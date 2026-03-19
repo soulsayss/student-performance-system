@@ -4,7 +4,6 @@ from models import db, User, Student, Attendance, Marks, Prediction, Alert
 from datetime import datetime, timedelta
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
-from app import cache
 
 parent_bp = Blueprint('parent', __name__)
 
@@ -20,7 +19,6 @@ def get_current_parent():
 
 @parent_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300, key_prefix=lambda: f'parent_dashboard_{get_jwt_identity()}')  # Cache for 5 minutes
 def get_dashboard():
     """
     GET /api/parent/dashboard

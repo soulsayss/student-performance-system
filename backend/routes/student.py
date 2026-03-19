@@ -6,7 +6,6 @@ from sqlalchemy import func, desc
 from sqlalchemy.orm import joinedload
 from utils.helpers import generate_recommendations, suggest_careers
 from utils.gamification import calculate_points, award_badges, get_student_achievements
-from app import cache
 
 student_bp = Blueprint('student', __name__)
 
@@ -22,7 +21,6 @@ def get_current_student():
 
 @student_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300, key_prefix=lambda: f'student_dashboard_{get_jwt_identity()}')  # Cache for 5 minutes
 def get_dashboard():
     """
     GET /api/student/dashboard
@@ -185,7 +183,6 @@ def get_attendance():
 
 @student_bp.route('/marks', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=600, key_prefix=lambda: f'student_marks_{get_jwt_identity()}')  # Cache for 10 minutes
 def get_marks():
     """
     GET /api/student/marks

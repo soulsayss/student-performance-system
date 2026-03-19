@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from sqlalchemy import func, desc, and_
 from sqlalchemy.orm import joinedload
 from utils.helpers import detect_at_risk_students, generate_alert_for_student
-from app import cache
 import csv
 import io
 
@@ -27,7 +26,9 @@ def get_current_teacher():
 def get_dashboard():
     """
     GET /api/teacher/dashboard
-    Returns: class overview, total students, at-risk count (ONLY for assigned class)
+    Returns: class overview, total students, at-risk count
+    - Class teachers: ONLY students in their assigned class (20 students)
+    - Subject teachers: ALL students across all classes (60 students)
     """
     try:
         user = get_current_teacher()
@@ -40,13 +41,18 @@ def get_dashboard():
         
         teacher = user.teacher_profile
         
-        # Get ONLY students from teacher's assigned class
-        students_query = Student.query
-        if teacher.assigned_class and teacher.assigned_section:
-            students_query = students_query.filter_by(
+        # Determine teacher type and filter students accordingly
+        if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
+            # Class teacher: ONLY students in assigned class
+            students_query = Student.query.filter_by(
                 class_name=teacher.assigned_class,
                 section=teacher.assigned_section
             )
+            teacher_type = 'class_teacher'
+        else:
+            # Subject teacher: ALL students
+            students_query = Student.query
+            teacher_type = 'subject_teacher'
         
         students = students_query.all()
         total_students = len(students)
@@ -77,20 +83,19 @@ def get_dashboard():
                 if avg_percentage < 50:
                     at_risk_count += 1
         
-        # Get recent attendance stats for assigned class
+        # Get recent attendance stats for filtered students
         today = datetime.utcnow().date()
-        today_attendance = Attendance.query.join(Student).filter(
+        student_ids = [s.student_id for s in students]
+        today_attendance = Attendance.query.filter(
             Attendance.date == today,
-            Student.class_name == teacher.assigned_class,
-            Student.section == teacher.assigned_section
-        ).all()
+            Attendance.student_id.in_(student_ids)
+        ).all() if student_ids else []
         present_today = sum(1 for a in today_attendance if a.status == 'present')
         
-        # Get class average for assigned class
-        all_marks = Marks.query.join(Student).filter(
-            Student.class_name == teacher.assigned_class,
-            Student.section == teacher.assigned_section
-        ).all()
+        # Get class average for filtered students
+        all_marks = Marks.query.filter(
+            Marks.student_id.in_(student_ids)
+        ).all() if student_ids else []
         
         if all_marks:
             class_average = sum((m.score / m.max_score * 100) for m in all_marks if m.max_score > 0) / len(all_marks)
@@ -104,11 +109,13 @@ def get_dashboard():
                 'at_risk_students': at_risk_count,
                 'present_today': present_today,
                 'class_average': round(class_average, 2),
+                'teacher_type': teacher_type,
                 'teacher_info': {
                     'name': user.name,
                     'subject': teacher.subject,
                     'department': teacher.department,
                     'employee_id': teacher.employee_id,
+                    'is_class_teacher': teacher.is_class_teacher,
                     'assigned_class': teacher.assigned_class,
                     'assigned_section': teacher.assigned_section
                 }
@@ -124,16 +131,17 @@ def get_dashboard():
 
 @teacher_bp.route('/students', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300, key_prefix=lambda: f'teacher_students_{get_jwt_identity()}')  # Cache for 5 minutes
 def get_students():
     """
     GET /api/teacher/students
     Returns: students based on teacher type
-    - Class teachers: ALL students in their assigned class
-    - Subject teachers: ALL students (they teach all classes)
+    - Class teachers: ONLY students in their assigned class (20 students)
+    - Subject teachers: ALL students across all classes (60 students)
     OPTIMIZED: Uses eager loading to prevent N+1 queries
     """
     try:
+        from app import cache
+        
         user = get_current_teacher()
         
         if not user or not user.teacher_profile:
@@ -154,12 +162,15 @@ def get_students():
         
         # Filter based on teacher type
         if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
-            # Class teacher: show only students in assigned class
+            # Class teacher: show ONLY students in assigned class
             students_query = students_query.filter_by(
                 class_name=teacher.assigned_class,
                 section=teacher.assigned_section
             )
-        # Subject teachers see all students (they teach all classes)
+            teacher_type = 'class_teacher'
+        else:
+            # Subject teacher: show ALL students
+            teacher_type = 'subject_teacher'
         
         students = students_query.all()
         
@@ -199,7 +210,7 @@ def get_students():
             'success': True,
             'students': students_data,
             'total': len(students_data),
-            'teacher_type': 'class_teacher' if teacher.is_class_teacher else 'subject_teacher'
+            'teacher_type': teacher_type
         }), 200
     
     except Exception as e:
@@ -626,7 +637,9 @@ def get_analytics():
 def get_at_risk_students():
     """
     GET /api/teacher/at-risk-students
-    Returns: flagged students (low attendance/performance) from assigned class ONLY
+    Returns: flagged students (low attendance/performance)
+    - Class teachers: ONLY at-risk students from their assigned class
+    - Subject teachers: ALL at-risk students
     """
     try:
         user = get_current_teacher()
@@ -642,14 +655,15 @@ def get_at_risk_students():
         # Use helper function to detect at-risk students
         all_at_risk = detect_at_risk_students()
         
-        # Filter by teacher's assigned class
-        at_risk_students = []
-        if teacher.assigned_class and teacher.assigned_section:
+        # Filter by teacher type
+        if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
+            # Class teacher: ONLY at-risk students from assigned class
             at_risk_students = [
                 s for s in all_at_risk 
                 if s.get('class_name') == teacher.assigned_class and s.get('section') == teacher.assigned_section
             ]
         else:
+            # Subject teacher: ALL at-risk students
             at_risk_students = all_at_risk
         
         # Generate alerts for newly detected at-risk students

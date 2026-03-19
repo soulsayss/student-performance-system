@@ -26,6 +26,8 @@ SUBJECTS = ['Science', 'Mathematics', 'History', 'Social Science', 'Geography', 
 # 3 Classes (8, 9, 10) with 1 section each
 CLASSES = ['8', '9', '10']
 SECTIONS = ['A']  # Only section A
+STUDENTS_PER_CLASS = 20  # 20 students per class
+TOTAL_STUDENTS = 60  # 3 classes × 1 section × 20 students
 
 def create_admin():
     """Create admin user"""
@@ -98,19 +100,26 @@ def create_teachers():
     return teachers
 
 def create_parents():
-    """Create 60 parent users (1 per student) with guaranteed unique emails"""
+    """Create 60 parent users (1 per student) with format firstname.lastname@gmail.com"""
     print("Creating 60 parents...")
     parents = []
     used_emails = set()
     
     for i in range(1, 61):
-        # Generate unique email by using counter
-        first_name = random.choice(FIRST_NAMES)
-        last_name = random.choice(LAST_NAMES)
-        name = f"{first_name} {last_name}"
+        # Generate unique parent name
+        attempts = 0
+        while attempts < 100:
+            first_name = random.choice(FIRST_NAMES)
+            last_name = random.choice(LAST_NAMES)
+            email = f"{first_name.lower()}.{last_name.lower()}@gmail.com"
+            
+            # Ensure unique email
+            if email not in used_emails:
+                used_emails.add(email)
+                break
+            attempts += 1
         
-        # Ensure unique email using counter
-        email = f"parent{i}@email.com"
+        name = f"{first_name} {last_name}"
         
         user = User(
             name=name,
@@ -127,9 +136,15 @@ def create_parents():
 
 
 def create_students(parents):
-    """Create 60 students across 3 classes (20 per class) with guaranteed unique emails"""
+    """Create 60 students across 3 classes (20 per class) with format firstname.lastname@gmail.com
+    Each student shares the same last name as their parent for easy identification"""
     print("Creating 60 students...")
     students = []
+    used_emails = set()
+    
+    # Track all existing emails (parents)
+    for parent in parents:
+        used_emails.add(parent.email)
     
     # Performance categories: 18 high (30%), 30 average (50%), 12 at-risk (20%)
     high_performers = 18
@@ -148,13 +163,21 @@ def create_students(parents):
                 # Get parent for this student
                 parent = parents[student_counter - 1]
                 parent_last_name = parent.name.split()[-1]
+                parent_first_name = parent.name.split()[0]
                 
-                # Create student with same last name as parent
-                first_name = random.choice(FIRST_NAMES)
+                # Create student with same last name as parent but different first name
+                attempts = 0
+                while attempts < 100:
+                    first_name = random.choice(FIRST_NAMES)
+                    email = f"{first_name.lower()}.{parent_last_name.lower()}@gmail.com"
+                    
+                    # Ensure unique email (different from parent and other students)
+                    if email not in used_emails and first_name != parent_first_name:
+                        used_emails.add(email)
+                        break
+                    attempts += 1
+                
                 name = f"{first_name} {parent_last_name}"
-                
-                # Use simple counter-based email to ensure uniqueness
-                email = f"student{student_counter}@school.com"
                 
                 user = User(
                     name=name,
@@ -765,32 +788,55 @@ def seed_all_data():
     print(f"\n📊 Summary:")
     print(f"  • 1 Admin user")
     print(f"  • 11 Teachers (3 class teachers + 8 subject teachers)")
-    print(f"  • 60 Parents")
+    print(f"  • 60 Parents (1 per student)")
     print(f"  • 60 Students (18 high, 30 average, 12 at-risk)")
-    print(f"  • Classes 8-10 (20 students per class)")
-    print(f"  • ~7,800 Attendance records (6 months)")
+    print(f"  • 3 Classes: 8A, 9A, 10A (20 students each)")
+    print(f"  • 11 Subjects per student")
+    print(f"  • ~7,800 Attendance records (6 months × 130 school days × 60 students)")
     print(f"  • ~3,960 Marks records (6 exams × 11 subjects × 60 students)")
     print(f"  • ~450 Assignments")
-    print(f"  • 66 Learning resources (6 per subject)")
+    print(f"  • 66 Learning resources (6 per subject × 11 subjects)")
     print(f"  • ~108 Alerts")
     print(f"  • ~160 Achievements")
-    print(f"  • 60 Predictions")
+    print(f"  • 60 Predictions (1 per student)")
     print(f"  • ~240 Recommendations")
     print(f"  • ~240 Career suggestions")
     print(f"  • Total Users: 132 (1 admin + 11 teachers + 60 students + 60 parents)")
+    print(f"\n📧 Email Formats:")
+    print(f"  • Admin: admin@school.edu")
+    print(f"  • Teachers: firstname.lastname@school.com")
+    print(f"  • Parents: firstname.lastname@gmail.com")
+    print(f"  • Students: firstname.lastname@gmail.com (same last name as parent)")
+    print(f"\n💡 Parent-Child Relationship:")
+    print(f"  • Each student shares the same last name as their parent")
+    print(f"  • Example: aarav.sharma@gmail.com (student) ← aayan.sharma@gmail.com (parent)")
+    print(f"  • This makes it easy to identify which parent belongs to which student")
     
     print(f"\n🔑 Login Credentials:")
     print(f"  Admin:   admin@school.edu / Admin@123")
-    print(f"\n  Class Teachers (see ALL students in their class):")
-    print(f"  • rajesh.kumar@school.com / Teacher@123 (Class 8A - 20 students)")
-    print(f"  • priya.sharma@school.com / Teacher@123 (Class 9A - 20 students)")
-    print(f"  • rohit.verma@school.com / Teacher@123 (Class 10A - 20 students)")
-    print(f"\n  Subject Teachers (see students they teach):")
+    print(f"\n  Class Teachers (see ONLY students in their assigned class - 20 students each):")
+    print(f"  • rajesh.kumar@school.com / Teacher@123 (Class 8A - Science)")
+    print(f"  • priya.sharma@school.com / Teacher@123 (Class 9A - Mathematics)")
+    print(f"  • rohit.verma@school.com / Teacher@123 (Class 10A - Sports)")
+    print(f"\n  Subject Teachers (see ALL 60 students across all classes):")
     print(f"  • amit.patel@school.com / Teacher@123 (History)")
     print(f"  • sneha.gupta@school.com / Teacher@123 (Social Science)")
-    print(f"  • And 6 more subject teachers...")
-    print(f"\n  Parents: parent[1-60]@email.com / Parent@123")
-    print(f"  Students: student[1-60]@school.com / Student@123")
+    print(f"  • vikram.singh@school.com / Teacher@123 (Geography)")
+    print(f"  • kavita.reddy@school.com / Teacher@123 (Hindi)")
+    print(f"  • arjun.nair@school.com / Teacher@123 (English)")
+    print(f"  • anjali.mehta@school.com / Teacher@123 (Music)")
+    print(f"  • meera.iyer@school.com / Teacher@123 (Additional Language)")
+    print(f"  • zara.khan@school.com / Teacher@123 (Arts/Drawing)")
+    print(f"\n  Sample Parent-Student Pairs (same last name for easy identification):")
+    
+    # Show first 5 parent-student pairs as examples
+    for i in range(min(5, len(students))):
+        user, student, _ = students[i]
+        parent = parents[i]
+        print(f"  • Parent: {parent.email} → Student: {user.email}")
+    
+    print(f"  ... and 55 more parent-student pairs")
+    print(f"\n  All passwords: Parent@123 (parents), Student@123 (students)")
     
     print(f"\n✅ Database ready for use!")
     print("="*60 + "\n")

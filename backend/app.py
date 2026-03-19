@@ -92,13 +92,13 @@ def create_app(config_class=Config):
             if user_count <= 1 or force_reseed:  # Empty or only admin OR force reseed
                 if force_reseed:
                     print("\n" + "="*60)
-                    print("🔄 FORCE RESEED ENABLED - DROPPING ALL TABLES")
+                    print("FORCE RESEED ENABLED - DROPPING ALL TABLES")
                     print("="*60)
                     db.drop_all()
                     db.create_all()
                 
                 print("\n" + "="*60)
-                print("🌱 DATABASE IS EMPTY - RUNNING AUTO-SEED SCRIPT")
+                print("DATABASE IS EMPTY - RUNNING AUTO-SEED SCRIPT")
                 print("="*60)
                 
                 # Import and run seed script
