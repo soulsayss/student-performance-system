@@ -26,7 +26,8 @@ def create_app(config_class=Config):
                      "http://localhost:3000",
                      "http://localhost:5000", 
                      "http://localhost:5173",
-                     "https://student-performance-system-kohl.vercel.app"
+                     "https://student-performance-system-kohl.vercel.app",
+                     "https://student-performance-system-soulsayss-projects.vercel.app"
                  ],
                  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
                  "allow_headers": ["Content-Type", "Authorization"],
