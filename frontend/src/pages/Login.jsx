@@ -27,20 +27,25 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsLoading(true)
     try {
+      console.log('[Login] Submitting form with email:', data.email)
       const response = await login(data.email, data.password)
       
+      console.log('[Login] Response:', response)
+      
       if (response.success) {
+        console.log('[Login] Login successful, redirecting to dashboard')
         toast.success('Login successful!')
         
         // Single redirect based on role
         const role = response.user.role
         navigate(`/${role}/dashboard`, { replace: true })
       } else {
+        console.log('[Login] Login failed:', response.message)
         toast.error(response.message || 'Login failed. Please check your credentials.')
       }
     } catch (error) {
-      console.error('Login error:', error)
-      // Error toast is already shown by api interceptor
+      console.error('[Login] Unexpected error:', error)
+      toast.error('An unexpected error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }
