@@ -34,21 +34,33 @@ def get_dashboard():
     - days: Number of days to look back (default: 30, max: 180)
     """
     try:
+        print("[DEBUG] Starting teacher dashboard endpoint")
         user = get_current_teacher()
+        print(f"[DEBUG] Current user: {user}")
         
-        if not user or not user.teacher_profile:
+        if not user:
+            print("[ERROR] User not found or not a teacher")
+            return jsonify({
+                'success': False,
+                'message': 'User not found or not a teacher'
+            }), 404
+        
+        if not user.teacher_profile:
+            print(f"[ERROR] Teacher profile not found for user {user.user_id}")
             return jsonify({
                 'success': False,
                 'message': 'Teacher profile not found'
             }), 404
         
         teacher = user.teacher_profile
+        print(f"[DEBUG] Teacher profile loaded: {teacher.teacher_id}, is_class_teacher: {teacher.is_class_teacher}")
         
         # Get days parameter, default to 30
         days = request.args.get('days', 30, type=int)
         days = min(max(days, 7), 180)  # Min 7, max 180
         
         cutoff_date = datetime.utcnow() - timedelta(days=days)
+        print(f"[DEBUG] Using date range: {days} days, cutoff: {cutoff_date}")
         
         # Determine teacher type and filter students accordingly
         if teacher.is_class_teacher and teacher.assigned_class and teacher.assigned_section:
@@ -58,75 +70,96 @@ def get_dashboard():
                 section=teacher.assigned_section
             )
             teacher_type = 'class_teacher'
+            print(f"[DEBUG] Class teacher - filtering for class {teacher.assigned_class}{teacher.assigned_section}")
         else:
             # Subject teacher: ALL students
             students_query = Student.query
             teacher_type = 'subject_teacher'
+            print(f"[DEBUG] Subject teacher - showing all students")
         
         students = students_query.all()
         total_students = len(students)
         student_ids = [s.student_id for s in students]
+        print(f"[DEBUG] Found {total_students} students")
         
         # OPTIMIZATION: Calculate at-risk using database aggregation
         at_risk_count = 0
         
         if student_ids:
-            # Count students with low attendance using subquery
-            low_attendance_subquery = db.session.query(
-                Attendance.student_id,
-                func.count(Attendance.attendance_id).label('total'),
-                func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present')
-            ).filter(
-                Attendance.student_id.in_(student_ids),
-                Attendance.date >= cutoff_date.date()
-            ).group_by(Attendance.student_id).subquery()
-            
-            low_attendance_students = db.session.query(
-                low_attendance_subquery.c.student_id
-            ).filter(
-                (low_attendance_subquery.c.present * 100.0 / low_attendance_subquery.c.total) < 75
-            ).all()
-            
-            # Count students with low marks using subquery
-            low_marks_subquery = db.session.query(
-                Marks.student_id,
-                func.avg(Marks.score / Marks.max_score * 100).label('avg_percentage')
-            ).filter(
-                Marks.student_id.in_(student_ids),
-                Marks.max_score > 0
-            ).group_by(Marks.student_id).subquery()
-            
-            low_marks_students = db.session.query(
-                low_marks_subquery.c.student_id
-            ).filter(
-                low_marks_subquery.c.avg_percentage < 50
-            ).all()
-            
-            # Combine unique at-risk students
-            at_risk_ids = set([s[0] for s in low_attendance_students] + [s[0] for s in low_marks_students])
-            at_risk_count = len(at_risk_ids)
+            try:
+                # Count students with low attendance using subquery
+                low_attendance_subquery = db.session.query(
+                    Attendance.student_id,
+                    func.count(Attendance.attendance_id).label('total'),
+                    func.sum(func.case((Attendance.status == 'present', 1), else_=0)).label('present')
+                ).filter(
+                    Attendance.student_id.in_(student_ids),
+                    Attendance.date >= cutoff_date.date()
+                ).group_by(Attendance.student_id).subquery()
+                
+                low_attendance_students = db.session.query(
+                    low_attendance_subquery.c.student_id
+                ).filter(
+                    (low_attendance_subquery.c.present * 100.0 / low_attendance_subquery.c.total) < 75
+                ).all()
+                
+                # Count students with low marks using subquery
+                low_marks_subquery = db.session.query(
+                    Marks.student_id,
+                    func.avg(Marks.score / Marks.max_score * 100).label('avg_percentage')
+                ).filter(
+                    Marks.student_id.in_(student_ids),
+                    Marks.max_score > 0
+                ).group_by(Marks.student_id).subquery()
+                
+                low_marks_students = db.session.query(
+                    low_marks_subquery.c.student_id
+                ).filter(
+                    low_marks_subquery.c.avg_percentage < 50
+                ).all()
+                
+                # Combine unique at-risk students
+                at_risk_ids = set([s[0] for s in low_attendance_students] + [s[0] for s in low_marks_students])
+                at_risk_count = len(at_risk_ids)
+                print(f"[DEBUG] At-risk students: {at_risk_count}")
+            except Exception as e:
+                print(f"[ERROR] Error calculating at-risk students: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                at_risk_count = 0
         
         # Get today's attendance stats
         today = datetime.utcnow().date()
         present_today = 0
         if student_ids:
-            present_today = Attendance.query.filter(
-                Attendance.date == today,
-                Attendance.student_id.in_(student_ids),
-                Attendance.status == 'present'
-            ).count()
+            try:
+                present_today = Attendance.query.filter(
+                    Attendance.date == today,
+                    Attendance.student_id.in_(student_ids),
+                    Attendance.status == 'present'
+                ).count()
+                print(f"[DEBUG] Present today: {present_today}")
+            except Exception as e:
+                print(f"[ERROR] Error getting today's attendance: {str(e)}")
+                present_today = 0
         
         # Get class average using aggregation
         class_average = 0
         if student_ids:
-            avg_result = db.session.query(
-                func.avg(Marks.score / Marks.max_score * 100)
-            ).filter(
-                Marks.student_id.in_(student_ids),
-                Marks.max_score > 0
-            ).scalar()
-            class_average = round(avg_result, 2) if avg_result else 0
+            try:
+                avg_result = db.session.query(
+                    func.avg(Marks.score / Marks.max_score * 100)
+                ).filter(
+                    Marks.student_id.in_(student_ids),
+                    Marks.max_score > 0
+                ).scalar()
+                class_average = round(avg_result, 2) if avg_result else 0
+                print(f"[DEBUG] Class average: {class_average}")
+            except Exception as e:
+                print(f"[ERROR] Error calculating class average: {str(e)}")
+                class_average = 0
         
+        print("[DEBUG] Dashboard data prepared successfully")
         return jsonify({
             'success': True,
             'dashboard': {
@@ -149,6 +182,9 @@ def get_dashboard():
         }), 200
     
     except Exception as e:
+        print(f"[ERROR] Exception in teacher dashboard: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'message': 'Failed to fetch dashboard',
