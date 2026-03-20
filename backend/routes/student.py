@@ -250,6 +250,57 @@ def get_marks():
             'error': str(e)
         }), 500
 
+@student_bp.route('/prediction', methods=['GET'])
+@jwt_required()
+def get_prediction():
+    """
+    GET /api/student/prediction
+    Returns: Latest ML prediction with detailed data for StudentPredictions page
+    """
+    try:
+        student = get_current_student()
+        
+        if not student:
+            return jsonify({
+                'success': False,
+                'message': 'Student profile not found'
+            }), 404
+        
+        # Get latest prediction
+        prediction = Prediction.query.filter_by(
+            student_id=student.student_id
+        ).order_by(desc(Prediction.created_at)).first()
+        
+        if not prediction:
+            return jsonify({
+                'success': False,
+                'message': 'No prediction available yet'
+            }), 404
+        
+        prediction_data = prediction.to_dict()
+        
+        # Get recommendations for this student
+        recommendations = Recommendation.query.filter_by(
+            student_id=student.student_id
+        ).order_by(desc(Recommendation.created_at)).limit(5).all()
+        
+        recommendation_texts = [r.reason for r in recommendations if r.reason]
+        
+        # Add recommendations to prediction data
+        prediction_data['recommendations'] = recommendation_texts
+        
+        return jsonify({
+            'success': True,
+            'prediction': prediction_data
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Failed to fetch prediction',
+            'error': str(e)
+        }), 500
+
 @student_bp.route('/predictions', methods=['GET'])
 @jwt_required()
 def get_predictions():

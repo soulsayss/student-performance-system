@@ -4,8 +4,7 @@ import {
   BookOpen, 
   TrendingUp, 
   Award, 
-  AlertCircle, 
-  Target,
+  AlertCircle,
   Brain,
   Lightbulb,
   Trophy,
@@ -164,13 +163,21 @@ const StudentDashboard = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary transition-colors duration-200">
-            Welcome back, {dashboard?.student_info?.name || 'Student'}!
-          </h1>
-          <p className="text-gray-600 dark:text-dark-text-secondary mt-1 transition-colors duration-200">
-            Class {dashboard?.student_info?.class} - Section {dashboard?.student_info?.section}
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary transition-colors duration-200">
+              Welcome back, {dashboard?.student_info?.name || 'Student'}!
+            </h1>
+            <p className="text-gray-600 dark:text-dark-text-secondary mt-1 transition-colors duration-200">
+              Class {dashboard?.student_info?.class} - Section {dashboard?.student_info?.section}
+            </p>
+          </div>
+          <button
+            onClick={() => window.location.href = '/student/analytics'}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+          >
+            View Analytics
+          </button>
         </div>
 
         {/* Stats */}
@@ -228,7 +235,12 @@ const StudentDashboard = () => {
                 <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">AI Performance Prediction</h2>
               </div>
-              <Target className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+              <button
+                onClick={() => window.location.href = '/student/predictions'}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                View Details
+              </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg transition-colors duration-200">
@@ -301,9 +313,17 @@ const StudentDashboard = () => {
         {/* Career Suggestions */}
         {careers.length > 0 && (
           <div className="mb-8">
-            <div className="flex items-center space-x-2 mb-4">
-              <Briefcase className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">Career Suggestions</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Briefcase className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">Career Suggestions</h2>
+              </div>
+              <button
+                onClick={() => window.location.href = '/student/career'}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              >
+                View All
+              </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {careers.map((career, idx) => (

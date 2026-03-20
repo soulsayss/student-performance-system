@@ -7,6 +7,9 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import StudentDashboard from './pages/StudentDashboard'
+import StudentPredictions from './pages/StudentPredictions'
+import CareerGuidance from './pages/CareerGuidance'
+import Analytics from './pages/Analytics'
 import TeacherDashboard from './pages/TeacherDashboard'
 import ParentDashboard from './pages/ParentDashboard'
 import AdminDashboard from './pages/AdminDashboard'
@@ -34,6 +37,42 @@ function App() {
           <Route path="/register" element={<Register />} />
           
           {/* Protected Routes */}
+          <Route
+            path="/student/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/student/predictions"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentPredictions />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/student/career"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <CareerGuidance />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/student/analytics"
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route
             path="/student/*"
             element={
