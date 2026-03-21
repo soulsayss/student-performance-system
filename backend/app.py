@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
@@ -17,14 +17,13 @@ def create_app(config_class=Config):
     app.config['CACHE_TYPE'] = 'SimpleCache'  # Use 'RedisCache' for production
     app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
     
-    # CORS Configuration - CRITICAL for Vercel frontend
+    # CORS Configuration - Flask-CORS handles everything automatically
     CORS(app, 
          resources={
              r"/api/*": {
                  "origins": [
                      "https://student-performance-system-soulsayss-projects.vercel.app",
                      "https://student-performance-system-kohl.vercel.app",
-                     "https://*.vercel.app",
                      "http://localhost:3000",
                      "http://localhost:5173",
                      "http://localhost:5000"
@@ -37,31 +36,6 @@ def create_app(config_class=Config):
              }
          }
     )
-    
-    # Preflight handler for OPTIONS requests
-    @app.before_request
-    def handle_preflight():
-        if request.method == "OPTIONS":
-            response = make_response()
-            origin = request.headers.get("Origin")
-            if origin:
-                response.headers.add("Access-Control-Allow-Origin", origin)
-                response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,Accept,X-Requested-With")
-                response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS,PATCH")
-                response.headers.add("Access-Control-Allow-Credentials", "true")
-                response.headers.add("Access-Control-Max-Age", "3600")
-            return response, 200
-    
-    # Add response headers to all responses
-    @app.after_request
-    def after_request(response):
-        origin = request.headers.get("Origin")
-        if origin:
-            response.headers.add("Access-Control-Allow-Origin", origin)
-            response.headers.add("Access-Control-Allow-Credentials", "true")
-            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,Accept,X-Requested-With")
-            response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS,PATCH")
-        return response
     
     # Initialize extensions
     db.init_app(app)
