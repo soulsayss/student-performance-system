@@ -314,3 +314,144 @@ def check_if_token_revoked():
                 }), 401
     except:
         pass
+
+@auth_bp.route('/debug/quick-test-logins', methods=['GET'])
+def get_quick_test_logins():
+    """Get first working credential for each role for quick testing"""
+    try:
+        from models import Teacher, Student, Parent
+        
+        test_logins = {
+            'admin': None,
+            'teacher': None,
+            'student': None,
+            'parent': None
+        }
+        
+        # Admin
+        admin = User.query.filter_by(role='admin').first()
+        if admin:
+            test_logins['admin'] = {
+                'name': admin.name,
+                'email': admin.email,
+                'password': 'Admin@123'
+            }
+        
+        # Teacher
+        teacher = User.query.filter_by(role='teacher').first()
+        if teacher:
+            teacher_info = Teacher.query.filter_by(user_id=teacher.user_id).first()
+            test_logins['teacher'] = {
+                'name': teacher.name,
+                'email': teacher.email,
+                'password': 'Teacher@123',
+                'subject': teacher_info.subject if teacher_info else 'Unknown'
+            }
+        
+        # Student
+        student = User.query.filter_by(role='student').first()
+        if student:
+            student_info = Student.query.filter_by(user_id=student.user_id).first()
+            test_logins['student'] = {
+                'name': student.name,
+                'email': student.email,
+                'password': 'Student@123',
+                'class': f"{student_info.class_name}{student_info.section}" if student_info else 'Unknown',
+                'roll': student_info.roll_number if student_info else 'N/A'
+            }
+        
+        # Parent
+        parent = User.query.filter_by(role='parent').first()
+        if parent:
+            test_logins['parent'] = {
+                'name': parent.name,
+                'email': parent.email,
+                'password': 'Parent@123'
+            }
+        
+        return jsonify({
+            'test_credentials': test_logins,
+            'instructions': 'Use these credentials to test login on Vercel deployment',
+            'note': 'These are the FIRST user of each role from your actual database'
+        }), 200
+    except Exception as e:
+        print(f"Error getting test logins: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/debug/export-all-users', methods=['GET'])
+def export_all_users():
+    """Export ALL users from database with their details"""
+    try:
+        from models import Teacher, Student, Parent
+        
+        users_data = {
+            'admin': [],
+            'teachers': [],
+            'students': [],
+            'parents': []
+        }
+        
+        # Get admin
+        admin = User.query.filter_by(role='admin').first()
+        if admin:
+            users_data['admin'].append({
+                'name': admin.name,
+                'email': admin.email,
+                'password': 'Admin@123'
+            })
+        
+        # Get all teachers
+        teachers = User.query.filter_by(role='teacher').all()
+        for t in teachers:
+            teacher_info = Teacher.query.filter_by(user_id=t.user_id).first()
+            users_data['teachers'].append({
+                'name': t.name,
+                'email': t.email,
+                'password': 'Teacher@123',
+                'subject': teacher_info.subject if teacher_info else 'Unknown',
+                'employee_id': teacher_info.employee_id if teacher_info else 'N/A'
+            })
+        
+        # Get all students
+        students = User.query.filter_by(role='student').all()
+        for s in students:
+            student_info = Student.query.filter_by(user_id=s.user_id).first()
+            if student_info:
+                users_data['students'].append({
+                    'name': s.name,
+                    'email': s.email,
+                    'password': 'Student@123',
+                    'class': f"{student_info.class_name}{student_info.section}",
+                    'roll_number': student_info.roll_number
+                })
+        
+        # Get all parents
+        parents = User.query.filter_by(role='parent').all()
+        for p in parents:
+            users_data['parents'].append({
+                'name': p.name,
+                'email': p.email,
+                'password': 'Parent@123'
+            })
+        
+        # Summary
+        summary = {
+            'total_users': User.query.count(),
+            'admin_count': len(users_data['admin']),
+            'teacher_count': len(users_data['teachers']),
+            'student_count': len(users_data['students']),
+            'parent_count': len(users_data['parents'])
+        }
+        
+        return jsonify({
+            'summary': summary,
+            'users': users_data,
+            'note': 'All passwords follow pattern: [Role]@123'
+        }), 200
+    except Exception as e:
+        print(f"Error exporting users: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
