@@ -319,8 +319,6 @@ def check_if_token_revoked():
 def get_quick_test_logins():
     """Get first working credential for each role for quick testing"""
     try:
-        from models import Teacher, Student, Parent
-        
         test_logins = {
             'admin': None,
             'teacher': None,
@@ -384,8 +382,6 @@ def get_quick_test_logins():
 def export_all_users():
     """Export ALL users from database with their details"""
     try:
-        from models import Teacher, Student, Parent
-        
         users_data = {
             'admin': [],
             'teachers': [],
@@ -414,26 +410,46 @@ def export_all_users():
                 'employee_id': teacher_info.employee_id if teacher_info else 'N/A'
             })
         
-        # Get all students
+        # Get all students with parent info
         students = User.query.filter_by(role='student').all()
         for s in students:
             student_info = Student.query.filter_by(user_id=s.user_id).first()
             if student_info:
+                # Get parent info
+                parent_email = None
+                if student_info.parent_id:
+                    parent_user = User.query.get(student_info.parent_id)
+                    if parent_user:
+                        parent_email = parent_user.email
+                
                 users_data['students'].append({
                     'name': s.name,
                     'email': s.email,
                     'password': 'Student@123',
                     'class': f"{student_info.class_name}{student_info.section}",
-                    'roll_number': student_info.roll_number
+                    'roll_number': student_info.roll_number,
+                    'parent_email': parent_email
                 })
         
-        # Get all parents
+        # Get all parents with child info
         parents = User.query.filter_by(role='parent').all()
         for p in parents:
+            # Find child (student with this parent_id)
+            child_student = Student.query.filter_by(parent_id=p.user_id).first()
+            child_name = None
+            child_email = None
+            if child_student:
+                child_user = User.query.get(child_student.user_id)
+                if child_user:
+                    child_name = child_user.name
+                    child_email = child_user.email
+            
             users_data['parents'].append({
                 'name': p.name,
                 'email': p.email,
-                'password': 'Parent@123'
+                'password': 'Parent@123',
+                'child_name': child_name or 'Not linked',
+                'child_email': child_email or 'Not linked'
             })
         
         # Summary
