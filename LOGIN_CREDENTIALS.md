@@ -1,139 +1,199 @@
-# 🔐 Login Credentials - Student Academic System
+# � Login Credentials - Railway Production Database
 
-## Quick Access Credentials
+**Last Updated:** March 22, 2026  
+**Database:** PostgreSQL on Railway  
+**Total Users:** 1,016 (1 admin + 15 teachers + 500 students + 500 parents)
 
-All passwords follow the format: `[Role]@123`
+---
+
+## � Email Format
+
+- **Admin:** `admin@school.edu`
+- **Teachers:** `firstname.lastname@school.com`
+- **Students:** `firstname.lastname{number}@gmail.com`
+- **Parents:** `parent.lastname{number}@gmail.com`
+
+## 🔐 Password Pattern
+
+All passwords follow the same pattern: `[Role]@123`
+
+- Admin: `Admin@123`
+- Teachers: `Teacher@123`
+- Students: `Student@123`
+- Parents: `Parent@123`
 
 ---
 
 ## 👨‍💼 Admin Account
 
-| Email | Password |
-|-------|----------|
-| admin@school.edu | Admin@123 |
+| Name | Email | Password | Role |
+|------|-------|----------|------|
+| System Administrator | admin@school.edu | Admin@123 | Admin |
 
 ---
 
-## 👨‍🏫 Teacher Accounts
+## 👨‍🏫 Teachers (15 Total)
 
-### Class Teachers (See only their 20 assigned students)
-
-| Name | Email | Password | Class | Subject |
-|------|-------|----------|-------|---------|
-| Dr. Rajesh Kumar | rajesh.kumar@school.com | Teacher@123 | 8A | Science |
-| Prof. Priya Sharma | priya.sharma@school.com | Teacher@123 | 9A | Mathematics |
-| Mr. Rohit Verma | rohit.verma@school.com | Teacher@123 | 10A | Sports |
-
-### Subject Teachers (See all 60 students)
-
+### Science Teachers (2)
 | Name | Email | Password | Subject |
 |------|-------|----------|---------|
-| Mr. Amit Patel | amit.patel@school.com | Teacher@123 | History |
-| Ms. Sneha Gupta | sneha.gupta@school.com | Teacher@123 | Social Science |
-| Dr. Vikram Singh | vikram.singh@school.com | Teacher@123 | Geography |
-| Mrs. Kavita Reddy | kavita.reddy@school.com | Teacher@123 | Hindi |
+| Dr. Rajesh Kumar | rajesh.kumar@school.com | Teacher@123 | Science |
+| Dr. Priya Malhotra | priya.malhotra@school.com | Teacher@123 | Science |
+
+### Mathematics Teachers (2)
+| Name | Email | Password | Subject |
+|------|-------|----------|---------|
+| Prof. Amit Sharma | amit.sharma@school.com | Teacher@123 | Mathematics |
+| Mrs. Sneha Kapoor | sneha.kapoor@school.com | Teacher@123 | Mathematics |
+
+### Other Subject Teachers
+| Name | Email | Password | Subject |
+|------|-------|----------|---------|
+| Mr. Vikram Patel | vikram.patel@school.com | Teacher@123 | History |
+| Ms. Anjali Reddy | anjali.reddy@school.com | Teacher@123 | Social Science |
+| Dr. Nikhil Desai | nikhil.desai@school.com | Teacher@123 | Social Science |
+| Mr. Suresh Iyer | suresh.iyer@school.com | Teacher@123 | Geography |
+| Mrs. Kavita Singh | kavita.singh@school.com | Teacher@123 | Hindi |
 | Mr. Arjun Nair | arjun.nair@school.com | Teacher@123 | English |
-| Ms. Anjali Mehta | anjali.mehta@school.com | Teacher@123 | Music |
-| Dr. Meera Iyer | meera.iyer@school.com | Teacher@123 | Additional Language |
-| Ms. Zara Khan | zara.khan@school.com | Teacher@123 | Arts/Drawing |
+| Mrs. Deepa Rao | deepa.rao@school.com | Teacher@123 | English |
+| Mr. Rohit Verma | rohit.verma@school.com | Teacher@123 | Sports |
+| Ms. Pooja Mehta | pooja.mehta@school.com | Teacher@123 | Music |
+| Dr. Meera Gupta | meera.gupta@school.com | Teacher@123 | Additional Language |
+| Prof. Karan Joshi | karan.joshi@school.com | Teacher@123 | Arts/Drawing |
 
 ---
 
-## 👨‍👩‍👧‍👦 Parent & Student Accounts
+## 👨‍🎓 Students (500 Total)
 
-**Email Format**: `firstname.lastname@gmail.com`  
-**Key Feature**: Parent and student share the same last name for easy identification
+### Sample Students by Class
 
-### CLASS 8A (20 Students)
+#### Class 6A (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Pranav Kumar | pranav.kumar1@gmail.com | Shobha Kumar | parent.kumar1@gmail.com | Student@123 / Parent@123 |
+| Vivaan Kapoor | vivaan.kapoor2@gmail.com | Shobha Kapoor | parent.kapoor2@gmail.com | Student@123 / Parent@123 |
+| Aryan Agarwal | aryan.agarwal3@gmail.com | Kavita Agarwal | parent.agarwal3@gmail.com | Student@123 / Parent@123 |
+| Shaurya Bansal | shaurya.bansal4@gmail.com | Geeta Bansal | parent.bansal4@gmail.com | Student@123 / Parent@123 |
+| Advik Gupta | advik.gupta5@gmail.com | Anjali Gupta | parent.gupta5@gmail.com | Student@123 / Parent@123 |
 
-| Roll | Parent Email | Student Email | Password |
-|------|-------------|---------------|----------|
-| 8A01 | angel.patel@gmail.com | advait.patel@gmail.com | Parent@123 / Student@123 |
-| 8A02 | shivansh.malhotra@gmail.com | aditya.malhotra@gmail.com | Parent@123 / Student@123 |
-| 8A03 | sai.sharma@gmail.com | ayaan.sharma@gmail.com | Parent@123 / Student@123 |
-| 8A04 | aditya.chopra@gmail.com | diya.chopra@gmail.com | Parent@123 / Student@123 |
-| 8A05 | rohan.kapoor@gmail.com | krishna.kapoor@gmail.com | Parent@123 / Student@123 |
-| 8A06 | ayaan.malhotra@gmail.com | shaurya.malhotra@gmail.com | Parent@123 / Student@123 |
-| 8A07 | advait.sharma@gmail.com | anika.sharma@gmail.com | Parent@123 / Student@123 |
-| 8A08 | kabir.agarwal@gmail.com | shaurya.agarwal@gmail.com | Parent@123 / Student@123 |
-| 8A09 | angel.reddy@gmail.com | shaurya.reddy@gmail.com | Parent@123 / Student@123 |
-| 8A10 | saanvi.patel@gmail.com | arnav.patel@gmail.com | Parent@123 / Student@123 |
-| 8A11 | shivansh.rao@gmail.com | ananya.rao@gmail.com | Parent@123 / Student@123 |
-| 8A12 | sara.rao@gmail.com | kiara.rao@gmail.com | Parent@123 / Student@123 |
-| 8A13 | angel.agarwal@gmail.com | atharv.agarwal@gmail.com | Parent@123 / Student@123 |
-| 8A14 | kiara.bansal@gmail.com | shaurya.bansal@gmail.com | Parent@123 / Student@123 |
-| 8A15 | arjun.malhotra@gmail.com | reyansh.malhotra@gmail.com | Parent@123 / Student@123 |
-| 8A16 | navya.agarwal@gmail.com | anika.agarwal@gmail.com | Parent@123 / Student@123 |
-| 8A17 | rohan.joshi@gmail.com | reyansh.joshi@gmail.com | Parent@123 / Student@123 |
-| 8A18 | saanvi.gupta@gmail.com | anika.gupta@gmail.com | Parent@123 / Student@123 |
-| 8A19 | pranav.reddy@gmail.com | diya.reddy@gmail.com | Parent@123 / Student@123 |
-| 8A20 | shaurya.patel@gmail.com | navya.patel@gmail.com | Parent@123 / Student@123 |
+#### Class 6B (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Pranav Bansal | pranav.bansal51@gmail.com | Ramesh Bansal | parent.bansal51@gmail.com | Student@123 / Parent@123 |
+| Virat Patel | virat.patel52@gmail.com | Ravi Patel | parent.patel52@gmail.com | Student@123 / Parent@123 |
+| Atharv Agarwal | atharv.agarwal53@gmail.com | Meera Agarwal | parent.agarwal53@gmail.com | Student@123 / Parent@123 |
 
-### CLASS 9A (20 Students)
+#### Class 7A (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Aarav Mehta | aarav.mehta151@gmail.com | Pooja Mehta | parent.mehta151@gmail.com | Student@123 / Parent@123 |
+| Rohan Kapoor | rohan.kapoor152@gmail.com | Meera Kapoor | parent.kapoor152@gmail.com | Student@123 / Parent@123 |
 
-| Roll | Parent Email | Student Email | Password |
-|------|-------------|---------------|----------|
-| 9A01 | krishna.iyer@gmail.com | diya.iyer@gmail.com | Parent@123 / Student@123 |
-| 9A02 | ayaan.patel@gmail.com | kiara.patel@gmail.com | Parent@123 / Student@123 |
-| 9A03 | ishaan.singh@gmail.com | navya.singh@gmail.com | Parent@123 / Student@123 |
-| 9A04 | ishaan.malhotra@gmail.com | saanvi.malhotra@gmail.com | Parent@123 / Student@123 |
-| 9A05 | angel.iyer@gmail.com | aadhya.iyer@gmail.com | Parent@123 / Student@123 |
-| 9A06 | angel.bhatia@gmail.com | rudra.bhatia@gmail.com | Parent@123 / Student@123 |
-| 9A07 | navya.sharma@gmail.com | aadhya.sharma@gmail.com | Parent@123 / Student@123 |
-| 9A08 | navya.kapoor@gmail.com | arnav.kapoor@gmail.com | Parent@123 / Student@123 |
-| 9A09 | advait.mehta@gmail.com | shivansh.mehta@gmail.com | Parent@123 / Student@123 |
-| 9A10 | sara.desai@gmail.com | aditya.desai@gmail.com | Parent@123 / Student@123 |
-| 9A11 | kiara.malhotra@gmail.com | angel.malhotra@gmail.com | Parent@123 / Student@123 |
-| 9A12 | arnav.bhatia@gmail.com | diya.bhatia@gmail.com | Parent@123 / Student@123 |
-| 9A13 | aadhya.desai@gmail.com | vivaan.desai@gmail.com | Parent@123 / Student@123 |
-| 9A14 | aadhya.malhotra@gmail.com | sai.malhotra@gmail.com | Parent@123 / Student@123 |
-| 9A15 | pranav.bhatia@gmail.com | ayaan.bhatia@gmail.com | Parent@123 / Student@123 |
-| 9A16 | diya.agarwal@gmail.com | aadhya.agarwal@gmail.com | Parent@123 / Student@123 |
-| 9A17 | pari.verma@gmail.com | sai.verma@gmail.com | Parent@123 / Student@123 |
-| 9A18 | kabir.sharma@gmail.com | shivansh.sharma@gmail.com | Parent@123 / Student@123 |
-| 9A19 | diya.patel@gmail.com | rudra.patel@gmail.com | Parent@123 / Student@123 |
-| 9A20 | shivansh.joshi@gmail.com | pari.joshi@gmail.com | Parent@123 / Student@123 |
+#### Class 7B (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Aarav Sharma | aarav.sharma201@gmail.com | Rajesh Sharma | parent.sharma201@gmail.com | Student@123 / Parent@123 |
 
-### CLASS 10A (20 Students)
+#### Class 8A (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Arjun Patel | arjun.patel251@gmail.com | Vinod Patel | parent.patel251@gmail.com | Student@123 / Parent@123 |
 
-| Roll | Parent Email | Student Email | Password |
-|------|-------------|---------------|----------|
-| 10A01 | ananya.mehta@gmail.com | kiara.mehta@gmail.com | Parent@123 / Student@123 |
-| 10A02 | atharv.chopra@gmail.com | aarav.chopra@gmail.com | Parent@123 / Student@123 |
-| 10A03 | shivansh.patel@gmail.com | pranav.patel@gmail.com | Parent@123 / Student@123 |
-| 10A04 | anika.bhatia@gmail.com | reyansh.bhatia@gmail.com | Parent@123 / Student@123 |
-| 10A05 | aadhya.bhatia@gmail.com | rohan.bhatia@gmail.com | Parent@123 / Student@123 |
-| 10A06 | vivaan.chopra@gmail.com | shaurya.chopra@gmail.com | Parent@123 / Student@123 |
-| 10A07 | vivaan.reddy@gmail.com | reyansh.reddy@gmail.com | Parent@123 / Student@123 |
-| 10A08 | reyansh.patel@gmail.com | atharv.patel@gmail.com | Parent@123 / Student@123 |
-| 10A09 | angel.sharma@gmail.com | saanvi.sharma@gmail.com | Parent@123 / Student@123 |
-| 10A10 | arnav.chopra@gmail.com | sai.chopra@gmail.com | Parent@123 / Student@123 |
-| 10A11 | atharv.nair@gmail.com | anika.nair@gmail.com | Parent@123 / Student@123 |
-| 10A12 | sai.joshi@gmail.com | navya.joshi@gmail.com | Parent@123 / Student@123 |
-| 10A13 | krishna.agarwal@gmail.com | rudra.agarwal@gmail.com | Parent@123 / Student@123 |
-| 10A14 | ananya.bansal@gmail.com | vihaan.bansal@gmail.com | Parent@123 / Student@123 |
-| 10A15 | krishna.kumar@gmail.com | ananya.kumar@gmail.com | Parent@123 / Student@123 |
-| 10A16 | ishaan.verma@gmail.com | rudra.verma@gmail.com | Parent@123 / Student@123 |
-| 10A17 | arjun.verma@gmail.com | advait.verma@gmail.com | Parent@123 / Student@123 |
-| 10A18 | pari.patel@gmail.com | aditya.patel@gmail.com | Parent@123 / Student@123 |
-| 10A19 | aarav.malhotra@gmail.com | anika.malhotra@gmail.com | Parent@123 / Student@123 |
-| 10A20 | angel.kapoor@gmail.com | dhruv.kapoor@gmail.com | Parent@123 / Student@123 |
+#### Class 8B (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Rohan Sharma | rohan.sharma301@gmail.com | Amit Sharma | parent.sharma301@gmail.com | Student@123 / Parent@123 |
+
+#### Class 9A (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Vivaan Kumar | vivaan.kumar351@gmail.com | Prakash Kumar | parent.kumar351@gmail.com | Student@123 / Parent@123 |
+
+#### Class 9B (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Aarav Gupta | aarav.gupta401@gmail.com | Suresh Gupta | parent.gupta401@gmail.com | Student@123 / Parent@123 |
+
+#### Class 10A (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Dhruv Mehta | dhruv.mehta451@gmail.com | Ramesh Mehta | parent.mehta451@gmail.com | Student@123 / Parent@123 |
+
+#### Class 10B (50 students)
+| Student Name | Student Email | Parent Name | Parent Email | Password |
+|--------------|---------------|-------------|--------------|----------|
+| Arnav Singh | arnav.singh501@gmail.com | Vikram Singh | parent.singh501@gmail.com | Student@123 / Parent@123 |
 
 ---
 
-## 📊 System Summary
+## 📊 Database Statistics
 
-- **Total Users**: 132 (1 admin + 11 teachers + 60 students + 60 parents)
-- **Classes**: 3 (8A, 9A, 10A)
-- **Students per Class**: 20
-- **Subjects**: 11 (Science, Mathematics, History, Social Science, Geography, Hindi, English, Sports, Music, Additional Language, Arts/Drawing)
+- **Total Users:** 1,016
+  - 1 Admin
+  - 15 Teachers
+  - 500 Students (10 sections × 50 each)
+  - 500 Parents (1:1 with students)
+
+- **Total Records:** 107,920
+  - 64,500 Attendance records
+  - 33,000 Marks records
+  - 4,234 Assignments
+  - 947 Alerts
+  - 981 Achievements
+  - 500 ML Predictions
+  - 2,000 Career Suggestions
+  - 1,692 Recommendations
+  - 66 Learning Resources
+
+- **Class Structure:** 10 sections
+  - Classes: 6, 7, 8, 9, 10
+  - Sections: A, B
+  - Students per section: 50 (28 boys, 22 girls)
 
 ---
 
-## 🧪 Quick Test
+## 🧪 Quick Test Credentials
 
-**Admin**: `admin@school.edu` / `Admin@123`  
-**Class Teacher**: `rajesh.kumar@school.com` / `Teacher@123` (sees 20 students)  
-**Subject Teacher**: `amit.patel@school.com` / `Teacher@123` (sees 60 students)  
-**Parent**: `angel.patel@gmail.com` / `Parent@123`  
-**Student**: `advait.patel@gmail.com` / `Student@123`
+Use these for quick testing on Vercel:
+
+```
+Admin:
+Email: admin@school.edu
+Password: Admin@123
+
+Teacher:
+Email: rajesh.kumar@school.com
+Password: Teacher@123
+
+Student:
+Email: pranav.kumar1@gmail.com
+Password: Student@123
+
+Parent:
+Email: parent.kumar1@gmail.com
+Password: Parent@123
+```
+
+---
+
+## 🔗 Debug Endpoints
+
+Get fresh credentials from Railway:
+
+- **Quick Test Logins:** `https://student-performance-system-production.up.railway.app/api/auth/debug/quick-test-logins`
+- **Export All Users:** `https://student-performance-system-production.up.railway.app/api/auth/debug/export-all-users`
+
+---
+
+## 📝 Notes
+
+- All student emails include a number suffix for uniqueness (e.g., `pranav.kumar1@gmail.com`)
+- All parent emails use `parent.` prefix (e.g., `parent.kumar1@gmail.com`)
+- Parent and student share the same last name to indicate relationship
+- The number suffix matches between parent and child (e.g., kumar1 for both)
+- All passwords are simple for testing purposes only
+
+---
+
+**Production URL:** https://student-performance-system-production.up.railway.app  
+**Frontend URL:** https://your-vercel-url.vercel.app

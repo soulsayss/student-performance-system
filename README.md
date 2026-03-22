@@ -56,13 +56,13 @@ An AI-powered system to predict student academic performance, identify at-risk s
 
 ## 📈 Key Metrics
 
-- **60** Students across 3 classes (8A, 9A, 10A)
-- **11** Teachers (3 class teachers + 8 subject teachers)
+- **500** Students across 10 classes (6A, 6B, 7A, 7B, 8A, 8B, 9A, 9B, 10A, 10B)
+- **15** Teachers (covering 11 subjects)
 - **11** Subjects per student
 - **85%** ML prediction accuracy
-- **132** Total users (1 admin + 11 teachers + 60 students + 60 parents)
-- **~7,800** Attendance records (6 months of data)
-- **~3,960** Marks records across all subjects
+- **1,016** Total users (1 admin + 15 teachers + 500 students + 500 parents)
+- **~64,500** Attendance records (6 months of data)
+- **~33,000** Marks records across all subjects
 
 ## 🚀 Quick Start
 
@@ -100,7 +100,15 @@ Frontend will run on `http://localhost:3000`
 4. **Access the Application**
 - Open your browser and go to `http://localhost:5173` (Vite default port)
 - Default admin credentials: `admin@school.edu` / `Admin@123`
-- See [LOGIN_CREDENTIALS.md](LOGIN_CREDENTIALS.md) for all test accounts
+- See [LOGIN_CREDENTIALS.md](LOGIN_CREDENTIALS.md) for all 1,016 test accounts
+
+## 🚀 Live Demo
+
+- **Frontend:** Deployed on Vercel
+- **Backend:** Deployed on Railway
+- **Database:** PostgreSQL with 1,016 users and 107,920+ records
+
+See [LOGIN_CREDENTIALS.md](LOGIN_CREDENTIALS.md) for test credentials.
 
 ## 📖 Usage
 
@@ -112,8 +120,7 @@ Frontend will run on `http://localhost:3000`
 
 
 ### For Teachers
-- **Class Teachers**: Manage and view only their assigned class (20 students)
-- **Subject Teachers**: View all students across all classes (60 students)
+- **All Teachers**: View and manage students across all classes (500 students)
 - Upload marks via CSV (bulk import)
 - View class analytics and reports
 - Identify at-risk students
@@ -127,7 +134,7 @@ Frontend will run on `http://localhost:3000`
 
 ### For Admins
 - Manage users (students, teachers, parents)
-- View system-wide analytics
+- View system-wide analytics (500 students)
 - Generate comprehensive reports
 - Configure system settings
 
